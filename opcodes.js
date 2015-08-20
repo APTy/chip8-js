@@ -21,10 +21,19 @@ function op_4(inst) {
 }
 function op_5(inst) {
 }
+
+// Sets VX to NN.
 function op_6(inst) {
+  V[inst >> 0x8 & 0xF] = inst & 0xFF;
+  console.log(V);
 }
+
+// Adds NN to VX. FIXME: implement with bitwise operators
 function op_7(inst) {
+  V[inst >> 0x8 & 0xF] += inst & 0xFF;
+  console.log(V);
 }
+
 function op_8(inst) {
 }
 function op_9(inst) {
