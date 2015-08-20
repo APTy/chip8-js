@@ -10,7 +10,6 @@ function op_0(inst) {
 
 // Jumps to address NNN.
 function op_1(inst) {
-  I = inst & 0xFFF;
 }
 
 // Calls subroutine at NNN.
@@ -86,10 +85,16 @@ function op_9(inst) {
   return OP_SUCCESS;
 }
 
+// Sets I to the address NNN.
 function op_A(inst) {
+  I = inst & 0xFFF;
+  return OP_SUCCESS;
 }
+
+// Jumps to the address NNN plus V0.
 function op_B(inst) {
 }
+
 function op_C(inst) {
 }
 function op_D(inst) {
