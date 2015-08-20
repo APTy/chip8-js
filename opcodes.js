@@ -1,3 +1,5 @@
+var RC = require('./returnCodes');
+
 const MEMORY_BYTE_SIZE = 0x1000;
 const REGISTER_BYTE_SIZE = 0x10;
 const STACK_BYTE_SIZE = 0x10;
@@ -15,21 +17,38 @@ function op_1(inst) {
 }
 function op_2(inst) {
 }
+
+// Skips the next instruction if VX equals NN.
 function op_3(inst) {
+  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) == 0x0)
+    return RC.OP_SKIP_NEXT_INSTRUCTION;
+  return RC.OP_SUCCESS;
 }
+
+// Skips the next instruction if VX doesn't equal NN.
 function op_4(inst) {
+  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) != 0x0)
+    return RC.OP_SKIP_NEXT_INSTRUCTION;
+  return RC.OP_SUCCESS;
 }
+
+// Skips the next instruction if VX equals VY.
 function op_5(inst) {
+  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) == 0x0)
+    return RC.OP_SKIP_NEXT_INSTRUCTION;
+  return RC.OP_SUCCESS;
 }
 
 // Sets VX to NN.
 function op_6(inst) {
   V[inst >> 0x8 & 0xF] = inst & 0xFF;
+  return RC.OP_SUCCESS;
 }
 
 // Adds NN to VX. FIXME: implement with bitwise operators
 function op_7(inst) {
   V[inst >> 0x8 & 0xF] += inst & 0xFF;
+  return RC.OP_SUCCESS;
 }
 
 function op_8(inst) {
@@ -58,9 +77,16 @@ function op_8(inst) {
       break;
     default:
   }
+  return RC.OP_SUCCESS;
 }
+
+// Skips the next instruction if VX doesn't equal VY.
 function op_9(inst) {
+  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) != 0x0)
+    return RC.OP_SKIP_NEXT_INSTRUCTION;
+  return RC.OP_SUCCESS;
 }
+
 function op_A(inst) {
 }
 function op_B(inst) {
