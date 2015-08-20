@@ -6,14 +6,27 @@ const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
              op_8, op_9, op_A, op_B, op_C, op_D, op_E, op_F];
 
 function op_0(inst) {
+  switch(inst) {
+    case 0x00E0: // Clears the screen.
+      break;
+    case 0x00EE: // Returns from a subroutine.
+      PC = SP;
+      SP--;
+      break;
+    default:
+  }
 }
 
 // Jumps to address NNN.
 function op_1(inst) {
+  PC = inst & 0xFFF;
 }
 
 // Calls subroutine at NNN.
 function op_2(inst) {
+  SP++;
+  PC = SP;
+  // set val (?) at PC to NNN
 }
 
 // Skips the next instruction if VX equals NN.
@@ -51,27 +64,27 @@ function op_7(inst) {
 
 function op_8(inst) {
   switch(inst & 0xF) {
-    case 0:   // Sets VX to the value of VY.
+    case 0x0:   // Sets VX to the value of VY.
       V[inst >> 0x8 & 0xF] = V[inst >> 0x4 & 0xF];
       break;
-    case 1:   // Sets VX to VX or VY.
+    case 0x1:   // Sets VX to VX or VY.
       V[inst >> 0x8 & 0xF] |= V[inst >> 0x4 & 0xF];
       break;
-    case 2:   // Sets VX to VX and VY.
+    case 0x2:   // Sets VX to VX and VY.
       V[inst >> 0x8 & 0xF] &= V[inst >> 0x4 & 0xF];
       break;
-    case 3:   // Sets VX to VX xor VY.
+    case 0x3:   // Sets VX to VX xor VY.
       V[inst >> 0x8 & 0xF] ^= V[inst >> 0x4 & 0xF];
       break;
-    case 4:   // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
+    case 0x4:   // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
       break;
-    case 5:   // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+    case 0x5:   // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
       break;
-    case 6:   // Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
+    case 0x6:   // Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
       break;
-    case 7:   // Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+    case 0x7:   // Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
       break;
-    case 14:  // Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.
+    case 0xF:  // Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.
       break;
     default:
   }
@@ -93,6 +106,7 @@ function op_A(inst) {
 
 // Jumps to the address NNN plus V0.
 function op_B(inst) {
+  PC = inst & 0xFFF + V[0];
 }
 
 function op_C(inst) {
