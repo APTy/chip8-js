@@ -1,13 +1,25 @@
 require('./returnCodes');
 var ops = require('./opcodes');
 
+/* CHIP-8 has 35 opcodes, which are all two bytes long and stored Big-endian. */
 const OP_CODE_BYTE_LENGTH = 2;
 
 function disassemble(buffer) {
   for (var i=0; i < buffer.length; i += OP_CODE_BYTE_LENGTH) {
-    var opcode = buffer.readUIntBE(i, OP_CODE_BYTE_LENGTH);
-    var op = opcode >> 0xC;
-    if (ops[op](opcode) == OP_SKIP_NEXT_INSTRUCTION) {
+
+    /*        Read in the next 2 bytes of data        */
+    var instruction = buffer.readUIntBE(i, OP_CODE_BYTE_LENGTH);
+
+    /*        The opcode is located at the 4 most significant bytes
+              of each instruction. Shifting off the 12 least
+              significant bytes will isolate the opcode.          */
+    var op = instruction >> 0xC;
+
+    /*        Lookup the op function in the ops table and send it
+              the requisite instruction. If the function returns
+              OP_SKIP_NEXT_INSTRUCTION, then we'll increment the
+              counter `i` to do so.        */
+    if (ops[op](instruction) == OP_SKIP_NEXT_INSTRUCTION) {
       i += OP_CODE_BYTE_LENGTH;
     }
   }
