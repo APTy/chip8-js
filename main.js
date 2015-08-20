@@ -5,7 +5,7 @@ const OP_CODE_BYTE_LENGTH = 2;
 const rom = {fd: undefined, size: undefined};
 const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
              op_8, op_9, op_A, op_B, op_C, op_D, op_E, op_F];
-
+const V = new Uint8Array(0x10);
 
 rom.fd = fs.openSync(CURRENT_ROM, 'r');
 rom.size = fs.fstatSync(rom.fd).size;
@@ -19,7 +19,7 @@ disassemble(buf);
 function disassemble(buffer) {
   for (var i=0; i < buffer.length; i += OP_CODE_BYTE_LENGTH) {
     var opcode = buffer.readUIntBE(i, OP_CODE_BYTE_LENGTH);
-    var op = opcode >> 12;
+    var op = opcode >> 0xc;
     ops[op](opcode);
   }
 }
