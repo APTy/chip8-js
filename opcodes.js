@@ -20,13 +20,13 @@ function op_0(inst) {
 
 // Jumps to address NNN.
 function op_1(inst) {
-  debug.log('Jumping to address', (0xFFF).toString(16));
+  debug.log('Jumping to address', (inst & 0xFFF).toString(16));
   PC = inst & 0xFFF;
 }
 
 // Calls subroutine at NNN.
 function op_2(inst) {
-  debug.log('Calling subroutine at', (0xFFF).toString(16));
+  debug.log('Calling subroutine at', (inst & 0xFFF).toString(16));
   SP++;
   PC = SP;
   PC = inst & 0xFFF;
@@ -140,7 +140,44 @@ function op_E(inst) {
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_F(inst) {
-  return OP_ERROR_NOT_IMPLEMENTED;
+  switch (inst & 0xFF) {
+    case 0x07:    // FX07	Sets VX to the value of the delay timer.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x0A:    // FX0A	A key press is awaited, and then stored in VX.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x15:    // FX15	Sets the delay timer to VX.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x18:    // FX18	Sets the sound timer to VX.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x1E:    // FX1E	Adds VX to I.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x29:    // FX29	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x33:    // FX33	Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)
+      var temp = V[inst >> 0x8 & 0xF];
+      var dec = (temp - temp % 100) / 100;
+      M[I] = dec;
+      temp -= dec;
+      dec = (temp - temp % 10) / 10;
+      M[I+1] = dec;
+      temp -= dec;
+      M[I+2] = temp;
+      debug.log('Storing %s %s %s at address %s', M[I], M[I+1], M[I+2], I.toString(16));
+      break;
+    case 0x55:    // FX55	Stores V0 to VX in memory starting at address I.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+    case 0x65:    // FX65	Fills V0 to VX with values from memory starting at address I.
+      return OP_ERROR_NOT_IMPLEMENTED;
+      break;
+  }
+  return OP_SUCCESS;
 }
 
 module.exports = ops;
