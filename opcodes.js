@@ -1,6 +1,7 @@
 require('./memory');
 require('./returnCodes');
 var debug = require('./debug');
+var display = require('./display');
 
 const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
              op_8, op_9, op_A, op_B, op_C, op_D, op_E, op_F];
@@ -12,7 +13,7 @@ function op_0(inst) {
       break;
     case 0x00EE: // Returns from a subroutine.
       PC = S[--SP];
-      debug.log('Returning from subroutine to address', PC);
+      debug.log('%s: Returning from subroutine to address', inst.toString(16), PC);
       return OP_SUCCESS;
     default:
   }
@@ -20,7 +21,7 @@ function op_0(inst) {
 
 // Jumps to address NNN.
 function op_1(inst) {
-  debug.log('Jumping to address', (inst & 0xFFF).toString(16));
+  debug.log('%s: Jumping to address', inst.toString(16), (inst & 0xFFF).toString(16));
   PC = inst & 0xFFF;
   console.log(PC);
   return OP_PROGRAM_COUNTER_MOVED;
@@ -28,7 +29,7 @@ function op_1(inst) {
 
 // Calls subroutine at NNN.
 function op_2(inst) {
-  debug.log('Calling subroutine at', (inst & 0xFFF).toString(16));
+  debug.log('%s: Calling subroutine at', inst.toString(16), (inst & 0xFFF).toString(16));
   S[SP++] = PC;
   PC = inst & 0xFFF;
   return OP_PROGRAM_COUNTER_MOVED;
@@ -57,14 +58,14 @@ function op_5(inst) {
 
 // Sets VX to NN.
 function op_6(inst) {
-  debug.log('Setting V%s to %s', (inst >> 0x8 & 0xF).toString(16), inst & 0xFF);
+  debug.log('%s: Setting V%s to %s', inst.toString(16), (inst >> 0x8 & 0xF).toString(16), inst & 0xFF);
   V[inst >> 0x8 & 0xF] = inst & 0xFF;
   return OP_SUCCESS;
 }
 
 // Adds NN to VX. FIXME: implement with bitwise operators
 function op_7(inst) {
-  debug.log('Adding %s to V%s', inst & 0xFF, (inst >> 0x8 & 0xF).toString(16));
+  debug.log('%s: Adding %s to V%s', inst.toString(16), inst & 0xFF, (inst >> 0x8 & 0xF).toString(16));
   V[inst >> 0x8 & 0xF] += inst & 0xFF;
   return OP_SUCCESS;
 }
@@ -113,14 +114,14 @@ function op_9(inst) {
 
 // Sets I to the address NNN.
 function op_A(inst) {
-  debug.log('%s Setting I to', inst.toString(16), (inst & 0xFFF).toString(16));
+  debug.log('%s: %s Setting I to', inst.toString(16), inst.toString(16), (inst & 0xFFF).toString(16));
   I = inst & 0xFFF;
   return OP_SUCCESS;
 }
 
 // Jumps to the address NNN plus V0.
 function op_B(inst) {
-  debug.log('Jumping to address', inst & 0xFFF + V[0]);
+  debug.log('%s: Jumping to address', inst.toString(16), inst & 0xFFF + V[0]);
   PC = inst & 0xFFF + V[0];
   return OP_PROGRAM_COUNTER_MOVED;
 }
@@ -131,7 +132,7 @@ function op_C(inst) {
 }
 function op_D(inst) {
   /* TODO: implement painting to the screen I guess */
-  debug.log('Drawing to (%s, %s)', inst >> 0x8 & 0xF, inst >> 0x4 & 0xF);
+  debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
   // console.log(inst & 0xF);         // N
   // console.log(I);
   // for (var i = 0; i < (inst & 0xF); i++) {
@@ -161,7 +162,7 @@ function op_F(inst) {
       break;
     case 0x29:    // FX29	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
       I = FONT_FIRST_ADDRESS_IN_MEMORY + (inst >> 0x8 & 0xF) * FONT_BYTE_SIZE;
-      debug.log('Setting I to %s', I);
+      debug.log('%s: Setting I to %s', inst.toString(16), I);
       break;
     case 0x33:    // FX33	Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)
       var temp = V[inst >> 0x8 & 0xF];
@@ -172,7 +173,7 @@ function op_F(inst) {
       M[I+1] = dec;
       temp -= dec;
       M[I+2] = temp;
-      debug.log('Storing %s %s %s at address I', M[I], M[I+1], M[I+2]);
+      debug.log('%s: Storing %s %s %s at address I', inst.toString(16), M[I], M[I+1], M[I+2]);
       break;
     case 0x55:    // FX55	Stores V0 to VX in memory starting at address I.
       return OP_ERROR_NOT_IMPLEMENTED;
@@ -181,7 +182,7 @@ function op_F(inst) {
       for (var i = 0; i < (inst >> 0x8 & 0xF); i++) {
         V[i] = I[i];
       }
-      debug.log('Filling V0 to V%s with values from I', (inst >> 0x8 & 0xF).toString(16));
+      debug.log('%s: Filling V0 to V%s with values from I', inst.toString(16), (inst >> 0x8 & 0xF).toString(16));
       break;
   }
   return OP_SUCCESS;

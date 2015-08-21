@@ -32,7 +32,7 @@ function disassemble(startAddress, programLength) {
       PC += OP_CODE_BYTE_LENGTH;
       continue;
     } else if (opReturn == OP_ERROR_NOT_IMPLEMENTED) {
-      debug.log('Error: instruction %s not implemented', instruction.toString(16));
+      console.error('Error: instruction %s not implemented', instruction.toString(16));
       break;
     } else if (opReturn != OP_PROGRAM_COUNTER_MOVED) {
       PC += OP_CODE_BYTE_LENGTH;
