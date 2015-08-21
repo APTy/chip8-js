@@ -2,6 +2,8 @@ var fs = require('fs');
 var debug = require('./debug');
 var disassemble = require('./disassembler');
 
+require('./memory');
+
 const CURRENT_ROM = 'PONG';   // Set current ROM for testing
 
 (function main() {
@@ -16,7 +18,11 @@ const CURRENT_ROM = 'PONG';   // Set current ROM for testing
   fs.readSync(romFd, romBuf, 0, romSize, 0);
   debug.log('Loaded ROM to buffer');
 
+  /*        Load the ROM into memory so that we can forget about it        */
+  debug.log('Loading ROM into memory');
+  loadIntoMemory(romBuf);
+
   /*        Run the disassembler on the romBuffer        */
   debug.log('Starting disassembler');
-  disassemble(romBuf);
+  disassemble(PROGRAM_ADDRESS_START, romBuf.length);
 })();

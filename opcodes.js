@@ -20,13 +20,13 @@ function op_0(inst) {
 
 // Jumps to address NNN.
 function op_1(inst) {
-  debug.log('Jumping to address', 0xFFF);
+  debug.log('Jumping to address', (0xFFF).toString(16));
   PC = inst & 0xFFF;
 }
 
 // Calls subroutine at NNN.
 function op_2(inst) {
-  debug.log('Calling subroutine at', 0xFFF);
+  debug.log('Calling subroutine at', (0xFFF).toString(16));
   SP++;
   PC = SP;
   PC = inst & 0xFFF;
@@ -55,14 +55,14 @@ function op_5(inst) {
 
 // Sets VX to NN.
 function op_6(inst) {
-  debug.log('Setting V%s to %s', inst >> 0x8 & 0xF, inst & 0xFF);
+  debug.log('Setting V%s to %s', (inst >> 0x8 & 0xF).toString(16), inst & 0xFF);
   V[inst >> 0x8 & 0xF] = inst & 0xFF;
   return OP_SUCCESS;
 }
 
 // Adds NN to VX. FIXME: implement with bitwise operators
 function op_7(inst) {
-  debug.log('Adding V%s to %s', inst >> 0x8 & 0xF, inst & 0xFF);
+  debug.log('Adding V%s to %s', (inst >> 0x8 & 0xF).toString(16), inst & 0xFF);
   V[inst >> 0x8 & 0xF] += inst & 0xFF;
   return OP_SUCCESS;
 }
@@ -111,7 +111,7 @@ function op_9(inst) {
 
 // Sets I to the address NNN.
 function op_A(inst) {
-  debug.log('Setting I to', 0xFFF);
+  debug.log('Setting I to', (inst & 0xFFF).toString(16));
   I = inst & 0xFFF;
   return OP_SUCCESS;
 }
@@ -126,6 +126,10 @@ function op_C(inst) {
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_D(inst) {
+  // inst >> 0x8 & 0xF  // X
+  // inst >> 0x4 & 0xF  // Y
+  // inst & 0xF         // N
+  console.log(M[I]);
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_E(inst) {

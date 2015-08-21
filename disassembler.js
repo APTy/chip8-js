@@ -6,11 +6,14 @@ var ops = require('./opcodes');
 /* CHIP-8 has 35 opcodes, which are all two bytes long and stored Big-endian. */
 const OP_CODE_BYTE_LENGTH = 2;
 
-function disassemble(buffer) {
-  while (PC < buffer.length) {
+function disassemble(startAddress, programLength) {
 
+  PC = startAddress;
+
+  while (PC < startAddress + programLength) {
+  
     /*        Read in the next 2 bytes of data        */
-    var instruction = buffer.readUIntBE(PC, OP_CODE_BYTE_LENGTH);
+    var instruction = (M[PC] << 8) + M[PC+1];
     PC += OP_CODE_BYTE_LENGTH;
 
     /*        The opcode is located at the 4 most significant bytes
