@@ -11,9 +11,9 @@ function op_0(inst) {
       return OP_ERROR_NOT_IMPLEMENTED;
       break;
     case 0x00EE: // Returns from a subroutine.
-      PC = SP;
-      SP--;
-      break;
+      PC = S[--SP];
+      debug.log('Returning from subroutine to address', PC);
+      return OP_PROGRAM_COUNTER_MOVED;
     default:
   }
 }
@@ -22,14 +22,16 @@ function op_0(inst) {
 function op_1(inst) {
   debug.log('Jumping to address', (inst & 0xFFF).toString(16));
   PC = inst & 0xFFF;
+  console.log(PC);
+  return OP_PROGRAM_COUNTER_MOVED;
 }
 
 // Calls subroutine at NNN.
 function op_2(inst) {
   debug.log('Calling subroutine at', (inst & 0xFFF).toString(16));
-  SP++;
-  PC = SP;
+  S[SP++] = PC;
   PC = inst & 0xFFF;
+  return OP_PROGRAM_COUNTER_MOVED;
 }
 
 // Skips the next instruction if VX equals NN.
@@ -62,7 +64,7 @@ function op_6(inst) {
 
 // Adds NN to VX. FIXME: implement with bitwise operators
 function op_7(inst) {
-  debug.log('Adding V%s to %s', (inst >> 0x8 & 0xF).toString(16), inst & 0xFF);
+  debug.log('Adding %s to V%s', inst & 0xFF, (inst >> 0x8 & 0xF).toString(16));
   V[inst >> 0x8 & 0xF] += inst & 0xFF;
   return OP_SUCCESS;
 }
@@ -111,7 +113,7 @@ function op_9(inst) {
 
 // Sets I to the address NNN.
 function op_A(inst) {
-  debug.log('Setting I to', (inst & 0xFFF).toString(16));
+  debug.log('%s Setting I to', inst.toString(16), (inst & 0xFFF).toString(16));
   I = inst & 0xFFF;
   return OP_SUCCESS;
 }
@@ -120,9 +122,11 @@ function op_A(inst) {
 function op_B(inst) {
   debug.log('Jumping to address', inst & 0xFFF + V[0]);
   PC = inst & 0xFFF + V[0];
+  return OP_PROGRAM_COUNTER_MOVED;
 }
 
 function op_C(inst) {
+  console.log(inst);
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_D(inst) {
@@ -137,6 +141,7 @@ function op_D(inst) {
   return OP_SUCCESS;
 }
 function op_E(inst) {
+  console.log()
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_F(inst) {
@@ -157,7 +162,8 @@ function op_F(inst) {
       return OP_ERROR_NOT_IMPLEMENTED;
       break;
     case 0x29:    // FX29	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      I = FONT_FIRST_ADDRESS_IN_MEMORY + (inst >> 0x8 & 0xF) * FONT_BYTE_SIZE;
+      debug.log('Setting I to %s', I);
       break;
     case 0x33:    // FX33	Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)
       var temp = V[inst >> 0x8 & 0xF];
@@ -168,7 +174,7 @@ function op_F(inst) {
       M[I+1] = dec;
       temp -= dec;
       M[I+2] = temp;
-      debug.log('Storing %s %s %s at address %s', M[I], M[I+1], M[I+2], I.toString(16));
+      debug.log('Storing %s %s %s at address I', M[I], M[I+1], M[I+2]);
       break;
     case 0x55:    // FX55	Stores V0 to VX in memory starting at address I.
       return OP_ERROR_NOT_IMPLEMENTED;

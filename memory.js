@@ -6,6 +6,7 @@ const REGISTER_BYTE_SIZE                = 0x10;
 const STACK_BYTE_SIZE                   = 0x10;
 
 global.FONT_FIRST_ADDRESS_IN_MEMORY     = 0x0000;
+global.FONT_BYTE_SIZE                   = 0x5;
 global.PROGRAM_ADDRESS_START            = 0x200;
 
 global.M  = new Uint8Array(MEMORY_BYTE_SIZE);           // Memory
