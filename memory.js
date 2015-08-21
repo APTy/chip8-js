@@ -18,8 +18,6 @@ global.SP = 0x00;                                       // Stack Pointer
 global.DT = 0x0000;                                     // Delay Timer
 global.ST = 0x0000;                                     // Sound Timer
 
-var _nextAvailableAddress = RESERVED_MEMORY_BYTE_SIZE;
-
 global.loadROMIntoMemory = function(ROM) {
   var fs = require('fs');
 
@@ -35,7 +33,7 @@ global.loadROMIntoMemory = function(ROM) {
 
   /*        Load the buffer into memory so that we can forget about it        */
   debug.log('Copying ROM to memory');
-  M.set(romBuf, _nextAvailableAddress);
+  M.set(romBuf, PROGRAM_ADDRESS_START);
 
   return romSize;
 };
