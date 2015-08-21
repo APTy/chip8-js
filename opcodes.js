@@ -13,7 +13,7 @@ function op_0(inst) {
     case 0x00EE: // Returns from a subroutine.
       PC = S[--SP];
       debug.log('Returning from subroutine to address', PC);
-      return OP_PROGRAM_COUNTER_MOVED;
+      return OP_SUCCESS;
     default:
   }
 }
@@ -131,8 +131,7 @@ function op_C(inst) {
 }
 function op_D(inst) {
   /* TODO: implement painting to the screen I guess */
-  // console.log(inst >> 0x8 & 0xF);  // X
-  // console.log(inst >> 0x4 & 0xF);  // Y
+  debug.log('Drawing to (%s, %s)', inst >> 0x8 & 0xF, inst >> 0x4 & 0xF);
   // console.log(inst & 0xF);         // N
   // console.log(I);
   // for (var i = 0; i < (inst & 0xF); i++) {
@@ -141,7 +140,6 @@ function op_D(inst) {
   return OP_SUCCESS;
 }
 function op_E(inst) {
-  console.log()
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_F(inst) {
