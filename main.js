@@ -17,6 +17,6 @@ const CURRENT_ROM = 'PONG';   // Set current ROM for testing
   debug.log('Loaded ROM to buffer');
 
   /*        Run the disassembler on the romBuffer        */
-  debug.log('Starting disassembly');
+  debug.log('Starting disassembler');
   disassemble(romBuf);
 })();
