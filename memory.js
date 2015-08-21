@@ -1,9 +1,13 @@
-const MEMORY_BYTE_SIZE = 0x1000;
-const RESERVED_MEMORY_BYTE_SIZE = 0x200;
-const REGISTER_BYTE_SIZE = 0x10;
-const STACK_BYTE_SIZE = 0x10;
+var debug = require('./debug');
 
-global.PROGRAM_ADDRESS_START = 0x200;
+const MEMORY_BYTE_SIZE                  = 0x1000;
+const RESERVED_MEMORY_BYTE_SIZE         = 0x200;
+const REGISTER_BYTE_SIZE                = 0x10;
+const STACK_BYTE_SIZE                   = 0x10;
+
+global.FONT_FIRST_ADDRESS_IN_MEMORY     = 0x0000;
+global.PROGRAM_ADDRESS_START            = 0x200;
+
 global.M  = new Uint8Array(MEMORY_BYTE_SIZE);           // Memory
 global.V  = new Uint8Array(REGISTER_BYTE_SIZE);         // Register
 global.S  = new Uint16Array(STACK_BYTE_SIZE);           // Stack
@@ -17,7 +21,6 @@ var _nextAvailableAddress = RESERVED_MEMORY_BYTE_SIZE;
 
 global.loadROMIntoMemory = function(ROM) {
   var fs = require('fs');
-  var debug = require('./debug');
 
   /*        Open the ROM and get its size        */
   debug.log('Opening ROM');
@@ -35,3 +38,11 @@ global.loadROMIntoMemory = function(ROM) {
 
   return romSize;
 };
+
+global.loadFonts = function() {
+  debug.log('Loading fonts into memory');
+  var fonts = require('./fonts');
+  fonts.forEach(function(font, index) {
+    M.set(font, FONT_FIRST_ADDRESS_IN_MEMORY + font.length * index);
+  });
+}
