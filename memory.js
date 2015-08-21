@@ -15,6 +15,23 @@ global.ST = 0x0000;                                     // Sound Timer
 
 var _nextAvailableAddress = RESERVED_MEMORY_BYTE_SIZE;
 
-global.loadIntoMemory = function(buf) {
-  M.set(buf, _nextAvailableAddress);
+global.loadROMIntoMemory = function(ROM) {
+  var fs = require('fs');
+  var debug = require('./debug');
+
+  /*        Open the ROM and get its size        */
+  debug.log('Opening ROM');
+  const romFd = fs.openSync(ROM, 'r');
+  const romSize = fs.fstatSync(romFd).size;
+
+  /*        Read the ROM into a Buffer object as hexadecimal        */
+  debug.log('Loading ROM to buffer');
+  const romBuf = new Buffer(romSize);
+  fs.readSync(romFd, romBuf, 0, romSize, 0);
+
+  /*        Load the buffer into memory so that we can forget about it        */
+  debug.log('Copying ROM to memory');
+  M.set(romBuf, _nextAvailableAddress);
+
+  return romSize;
 };
