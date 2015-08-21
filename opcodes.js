@@ -1,6 +1,6 @@
 require('./memory');
 require('./returnCodes');
-
+var debug = require('./debug');
 
 const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
              op_8, op_9, op_A, op_B, op_C, op_D, op_E, op_F];
@@ -19,11 +19,13 @@ function op_0(inst) {
 
 // Jumps to address NNN.
 function op_1(inst) {
+  debug.log('Jumping to address', 0xFFF);
   PC = inst & 0xFFF;
 }
 
 // Calls subroutine at NNN.
 function op_2(inst) {
+  debug.log('Calling subroutine at', 0xFFF);
   SP++;
   PC = SP;
   PC = inst & 0xFFF;
@@ -52,12 +54,14 @@ function op_5(inst) {
 
 // Sets VX to NN.
 function op_6(inst) {
+  debug.log('Setting V%s to %s', inst >> 0x8 & 0xF, inst & 0xFF);
   V[inst >> 0x8 & 0xF] = inst & 0xFF;
   return OP_SUCCESS;
 }
 
 // Adds NN to VX. FIXME: implement with bitwise operators
 function op_7(inst) {
+  debug.log('Adding V%s to %s', inst >> 0x8 & 0xF, inst & 0xFF);
   V[inst >> 0x8 & 0xF] += inst & 0xFF;
   return OP_SUCCESS;
 }
@@ -100,12 +104,14 @@ function op_9(inst) {
 
 // Sets I to the address NNN.
 function op_A(inst) {
+  debug.log('Setting I to', 0xFFF);
   I = inst & 0xFFF;
   return OP_SUCCESS;
 }
 
 // Jumps to the address NNN plus V0.
 function op_B(inst) {
+  debug.log('Jumping to address', inst & 0xFFF + V[0]);
   PC = inst & 0xFFF + V[0];
 }
 

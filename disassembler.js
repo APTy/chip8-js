@@ -1,5 +1,5 @@
-require('./returnCodes');
 require('./memory');
+require('./returnCodes');
 var ops = require('./opcodes');
 
 /* CHIP-8 has 35 opcodes, which are all two bytes long and stored Big-endian. */
@@ -22,6 +22,7 @@ function disassemble(buffer) {
               OP_SKIP_NEXT_INSTRUCTION, then we'll increment the
               counter `i` to do so.        */
     if (ops[op](instruction) == OP_SKIP_NEXT_INSTRUCTION) {
+      debug.log('Skipping instruction %s: %s', PC, buffer.readUIntBE(PC, OP_CODE_BYTE_LENGTH));
       PC += OP_CODE_BYTE_LENGTH;
     }
   }
