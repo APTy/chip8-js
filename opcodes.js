@@ -26,7 +26,7 @@ function op_1(inst) {
 function op_2(inst) {
   SP++;
   PC = SP;
-  // set val (?) at PC to NNN
+  PC = inst & 0xFFF;
 }
 
 // Skips the next instruction if VX equals NN.
