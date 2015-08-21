@@ -174,7 +174,10 @@ function op_F(inst) {
       return OP_ERROR_NOT_IMPLEMENTED;
       break;
     case 0x65:    // FX65	Fills V0 to VX with values from memory starting at address I.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      for (var i = 0; i < (inst >> 0x8 & 0xF); i++) {
+        V[i] = I[i];
+      }
+      debug.log('Filling V0 to V%s with values from I', (inst >> 0x8 & 0xF).toString(16));
       break;
   }
   return OP_SUCCESS;
