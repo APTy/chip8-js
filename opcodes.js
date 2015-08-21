@@ -126,11 +126,15 @@ function op_C(inst) {
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_D(inst) {
-  // inst >> 0x8 & 0xF  // X
-  // inst >> 0x4 & 0xF  // Y
-  // inst & 0xF         // N
-  console.log(M[I]);
-  return OP_ERROR_NOT_IMPLEMENTED;
+  /* TODO: implement painting to the screen I guess */
+  // console.log(inst >> 0x8 & 0xF);  // X
+  // console.log(inst >> 0x4 & 0xF);  // Y
+  // console.log(inst & 0xF);         // N
+  // console.log(I);
+  // for (var i = 0; i < (inst & 0xF); i++) {
+  //   console.log(M[I + i].toString(2));
+  // }
+  return OP_SUCCESS;
 }
 function op_E(inst) {
   return OP_ERROR_NOT_IMPLEMENTED;
