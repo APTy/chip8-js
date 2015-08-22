@@ -131,13 +131,11 @@ function op_C(inst) {
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_D(inst) {
-  /* TODO: implement painting to the screen I guess */
   debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
-  // console.log(inst & 0xF);         // N
-  // console.log(I);
-  // for (var i = 0; i < (inst & 0xF); i++) {
-  //   console.log(M[I + i].toString(2));
-  // }
+  for (var i = 0; i < (inst & 0xF); i++) {
+    addSpriteToDisplay(M[I+i], inst >> 0x8 & 0xF, (inst >> 0x4 & 0xF) + i);
+  }
+  display.paint();
   return OP_SUCCESS;
 }
 function op_E(inst) {

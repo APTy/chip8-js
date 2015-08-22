@@ -4,12 +4,12 @@ const MEMORY_BYTE_SIZE                  = 0x1000;
 const RESERVED_MEMORY_BYTE_SIZE         = 0x200;
 const REGISTER_BYTE_SIZE                = 0x10;
 const STACK_BYTE_SIZE                   = 0x10;
-const DISPLAY_WIDTH_BYTES               = 0X08;
-const DISPLAY_HEIGHT_BYTES              = 0X04;
 
 global.FONT_FIRST_ADDRESS_IN_MEMORY     = 0x0000;
 global.FONT_BYTE_SIZE                   = 0x5;
 global.PROGRAM_ADDRESS_START            = 0x200;
+global.DISPLAY_WIDTH_BYTES              = 0X40;
+global.DISPLAY_HEIGHT_BYTES             = 0X20;
 
 global.M       = new Uint8Array(MEMORY_BYTE_SIZE);     // Memory
 global.V       = new Uint8Array(REGISTER_BYTE_SIZE);   // Register
@@ -48,4 +48,10 @@ global.loadFonts = function() {
   fonts.forEach(function(font, index) {
     M.set(font, FONT_FIRST_ADDRESS_IN_MEMORY + font.length * index);
   });
+}
+
+global.addSpriteToDisplay = function(sprite, x, y) {
+  for (var i = 7; i >= 0; i--) {
+    display[x + y * DISPLAY_HEIGHT_BYTES + 7 - i] = sprite >> i & 1;
+  }
 }
