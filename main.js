@@ -1,4 +1,5 @@
 var debug = require('./debug');
+var clock = require('./clock');
 var display = require('./display');
 var disassemble = require('./disassembler');
 
@@ -10,6 +11,7 @@ const CURRENT_ROM = 'PONG';   // Set current ROM for testing
   debug.log('## Initializing');
   loadFonts();
   display.init();
+  clock.init();
 
   debug.log('Loading ROM into memory');
   var romSize = loadROMIntoMemory(CURRENT_ROM);

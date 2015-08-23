@@ -23,6 +23,7 @@ exports.clear = function() {
 };
 
 exports.init = function() {
+  debug.log('Initializing the display');
   exports.clear();
 };
 

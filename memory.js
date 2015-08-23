@@ -48,10 +48,10 @@ global.loadFonts = function() {
   fonts.forEach(function(font, index) {
     M.set(font, FONT_FIRST_ADDRESS_IN_MEMORY + font.length * index);
   });
-}
+};
 
 global.addSpriteToDisplay = function(sprite, x, y) {
   for (var i = 7; i >= 0; i--) {
     display[x + y * DISPLAY_HEIGHT_BYTES + 7 - i] = sprite >> i & 1;
   }
-}
+};
