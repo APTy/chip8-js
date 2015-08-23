@@ -1,6 +1,7 @@
 require('./memory');
 require('./returnCodes');
 var debug = require('./debug');
+var input = require('./input');
 var display = require('./display');
 
 const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
@@ -9,7 +10,7 @@ const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
 function op_0(inst) {
   switch(inst) {
     case 0x00E0: // Clears the screen.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      display.clear();
       break;
     case 0x00EE: // Returns from a subroutine.
       PC = S[--SP];
@@ -140,6 +141,8 @@ function op_D(inst) {
   return OP_SUCCESS;
 }
 function op_E(inst) {
+  // EX9E: Skips the next instruction if the key stored in VX is pressed.
+  input.isKeyDown(inst >> 0x8 & 0xF);
   return OP_ERROR_NOT_IMPLEMENTED;
 }
 function op_F(inst) {
@@ -156,10 +159,12 @@ function op_F(inst) {
       DT = V[inst >> 0x8 & 0xF];
       break;
     case 0x18:    // FX18	Sets the sound timer to VX.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      debug.log('%s: Setting ST to %s', inst.toString(16), V[inst >> 0x8 * 0xF]);
+      ST = V[inst >> 0x8 & 0xF];
       break;
     case 0x1E:    // FX1E	Adds VX to I.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      debug.log('%s: Addint %s to I', inst.toString(16), V[inst >> 0x8 * 0xF]);
+      I += V[inst >> 0x8 & 0xF];
       break;
     case 0x29:    // FX29	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
       I = FONT_FIRST_ADDRESS_IN_MEMORY + (inst >> 0x8 & 0xF) * FONT_BYTE_SIZE;
@@ -177,7 +182,10 @@ function op_F(inst) {
       debug.log('%s: Storing %s %s %s at address I', inst.toString(16), M[I], M[I+1], M[I+2]);
       break;
     case 0x55:    // FX55	Stores V0 to VX in memory starting at address I.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      for (var i = 0; i < (inst >> 0x8 & 0xF); i++) {
+        I[i] = V[i];
+      }
+      debug.log('%s: Storing V0 to V%s to I', inst.toString(16), (inst >> 0x8 & 0xF).toString(16));
       break;
     case 0x65:    // FX65	Fills V0 to VX with values from memory starting at address I.
       for (var i = 0; i < (inst >> 0x8 & 0xF); i++) {
