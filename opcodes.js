@@ -125,9 +125,11 @@ function op_B(inst) {
   return OP_SUCCESS;
 }
 
+// CXNN: Sets VX to the result of a random number 'and' NN.
 function op_C(inst) {
-  console.log(inst);
-  return OP_ERROR_NOT_IMPLEMENTED;
+  // TODO: implement my own random function
+  V[inst >> 0x8 & 0xFF] = (Math.random()*256 >> 0) & (inst & 0xFF);
+  return OP_SUCCESS;
 }
 function op_D(inst) {
   debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
