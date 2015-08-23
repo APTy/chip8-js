@@ -22,6 +22,7 @@ function disassemble(startAddress, programLength) {
 
     /*        Read in the next 2 bytes of data        */
     var instruction = (M[PC] << 8) + M[PC+1];
+    PC += OP_CODE_BYTE_LENGTH;
 
     /*        The opcode is located at the 4 most significant bytes
               of each instruction. Shifting off the 12 least
@@ -36,14 +37,12 @@ function disassemble(startAddress, programLength) {
     var opReturn = ops[op](instruction);
 
     if (opReturn == OP_SKIP_NEXT_INSTRUCTION) {
-      debug.log('Skipping instruction %s: %s', PC, buffer.readUIntBE(PC, OP_CODE_BYTE_LENGTH));
+      debug.log('Skipping instruction at address %s', PC);
       PC += OP_CODE_BYTE_LENGTH;
       continue;
     } else if (opReturn == OP_ERROR_NOT_IMPLEMENTED) {
       console.error('Error: instruction %s not implemented', instruction.toString(16));
       break;
-    } else if (opReturn != OP_PROGRAM_COUNTER_MOVED) {
-      PC += OP_CODE_BYTE_LENGTH;
     }
   }
 }

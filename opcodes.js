@@ -23,7 +23,7 @@ function op_0(inst) {
 function op_1(inst) {
   debug.log('%s: Jumping to address', inst.toString(16), (inst & 0xFFF).toString(16));
   PC = inst & 0xFFF;
-  return OP_PROGRAM_COUNTER_MOVED;
+  return OP_SUCCESS;
 }
 
 // Calls subroutine at NNN.
@@ -31,7 +31,7 @@ function op_2(inst) {
   debug.log('%s: Calling subroutine at', inst.toString(16), (inst & 0xFFF).toString(16));
   S[SP++] = PC;
   PC = inst & 0xFFF;
-  return OP_PROGRAM_COUNTER_MOVED;
+  return OP_SUCCESS;
 }
 
 // Skips the next instruction if VX equals NN.
@@ -122,7 +122,7 @@ function op_A(inst) {
 function op_B(inst) {
   debug.log('%s: Jumping to address', inst.toString(16), inst & 0xFFF + V[0]);
   PC = inst & 0xFFF + V[0];
-  return OP_PROGRAM_COUNTER_MOVED;
+  return OP_SUCCESS;
 }
 
 function op_C(inst) {
