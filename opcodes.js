@@ -23,7 +23,6 @@ function op_0(inst) {
 function op_1(inst) {
   debug.log('%s: Jumping to address', inst.toString(16), (inst & 0xFFF).toString(16));
   PC = inst & 0xFFF;
-  console.log(PC);
   return OP_PROGRAM_COUNTER_MOVED;
 }
 
@@ -114,7 +113,7 @@ function op_9(inst) {
 
 // Sets I to the address NNN.
 function op_A(inst) {
-  debug.log('%s: %s Setting I to', inst.toString(16), inst.toString(16), (inst & 0xFFF).toString(16));
+  debug.log('%s: Setting I to', inst.toString(16), (inst & 0xFFF).toString(16));
   I = inst & 0xFFF;
   return OP_SUCCESS;
 }
@@ -144,13 +143,15 @@ function op_E(inst) {
 function op_F(inst) {
   switch (inst & 0xFF) {
     case 0x07:    // FX07	Sets VX to the value of the delay timer.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      debug.log('%s: Setting V%s to %s', inst.toString(16), inst >> 0x8 & 0xF, DT);
+      V[inst >> 0x8 & 0xF] = DT;
       break;
     case 0x0A:    // FX0A	A key press is awaited, and then stored in VX.
       return OP_ERROR_NOT_IMPLEMENTED;
       break;
     case 0x15:    // FX15	Sets the delay timer to VX.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      debug.log('%s: Setting DT to %s', inst.toString(16), V[inst >> 0x8 & 0xF]);
+      DT = V[inst >> 0x8 & 0xF];
       break;
     case 0x18:    // FX18	Sets the sound timer to VX.
       return OP_ERROR_NOT_IMPLEMENTED;
