@@ -45,8 +45,8 @@ exports.paint = function() {
 }
 
 function fillPixel(str, char) {
-  for (var i = 0; i < WIDTH_RATIO; i++)
-    str += char;
+  // for (var i = 0; i < WIDTH_RATIO; i++)
+  str += char;
   return str;
 }
 
