@@ -1,0 +1,23 @@
+{
+  "name": "chip8-js",
+  "version": "1.0.0",
+  "description": "CHIP-8 emulator in JavaScript",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/APTy/chip8-js.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/APTy/chip8-js/issues"
+  },
+  "homepage": "https://github.com/APTy/chip8-js#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}

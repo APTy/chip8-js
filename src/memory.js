@@ -23,7 +23,7 @@ global.DT      = 0x0000;                               // Delay Timer
 global.ST      = 0x0000;                               // Sound Timer
 
 global.loadROMIntoMemory = function(ROM) {
-  var fs = require('fs');
+  // var fs = require('fs');
 
   /*        Open the ROM and get its size        */
   debug.log('Opening ROM');

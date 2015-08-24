@@ -1,17 +1,17 @@
 require('./memory');
 var debug = require('./debug');
 
-const SCREEN_WIDTH   = process.stdout.columns;
-const SCREEN_HEIGHT  = process.stdout.rows;
+const SCREEN_WIDTH   = 128; // process.stdout.columns;
+const SCREEN_HEIGHT  = 32;  // process.stdout.rows;
 const WIDTH_RATIO    = SCREEN_WIDTH / DISPLAY_WIDTH_BYTES;
 const HEIGHT_RATIO   = SCREEN_HEIGHT / DISPLAY_HEIGHT_BYTES;
 const PIXEL_OFF      = ' ';
 const PIXEL_ON       = '+';
 
 _clearLines = function() {
-  for (var i = 0; i < process.stdout.rows; i++) {
-    process.stdout.write('\n');
-  }
+  // for (var i = 0; i < process.stdout.rows; i++) {
+  //   process.stdout.write('\n');
+  // }
 };
 
 exports.clear = function() {
@@ -51,6 +51,6 @@ function fillPixel(str, char) {
 }
 
 function printToScreen(str) {
-  for (var i = 0; i < HEIGHT_RATIO; i++)
-    process.stdout.write(str + '\n');
+  for (var i = 0; i < HEIGHT_RATIO; i++) {}
+    // process.stdout.write(str + '\n');
 }
