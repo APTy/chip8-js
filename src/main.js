@@ -16,8 +16,10 @@ const CURRENT_ROM = 'PONG';   // Set current ROM for testing
   input.init();
 
   debug.log('Loading ROM into memory');
-  var romSize = loadROMIntoMemory(CURRENT_ROM);
+  var romSize = loadROMIntoMemory(CURRENT_ROM, function(romSize) {
 
-  debug.log('## Starting disassembler');
-  disassemble(PROGRAM_ADDRESS_START, romSize);
+    debug.log('## Starting disassembler');
+    disassemble(PROGRAM_ADDRESS_START, romSize);
+
+  });
 })();
