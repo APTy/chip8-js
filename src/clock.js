@@ -11,7 +11,7 @@ function updateTimers() {
     DT -= 1;
   }
   if (ST > 0) {
-    process.stdout.write('\007');
+    // process.stdout.write('\007');
     ST -= 1;
   }
 };

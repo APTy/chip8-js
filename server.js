@@ -7,8 +7,7 @@ const ROM_DIRECTORY = './ROM/';
 chip8.get('/pong', function(req, res) {
   console.log('Opening PONG rom');
   var romURI = ROM_DIRECTORY + 'pong'.toUpperCase();
-  var opts = {encoding: 'base64'}
-  var romData = fs.readFile(romURI, opts, function(err, data) {
+  var romData = fs.readFile(romURI, function(err, data) {
     console.log('Sending PONG rom data');
     res.status(200).send(data);
   });

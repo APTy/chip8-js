@@ -29,16 +29,12 @@ global.loadROMIntoMemory = function(ROM, callback) {
   debug.log('Getting ROM from server');
   http.get(ROM, function(rom) {
 
-    /*        Read the base-64 encoded ROM into a Buffer object        */
-    debug.log('Loading ROM to buffer');
-    const romBuf = new Buffer(atob(rom));
-
-    /*        Load the buffer into memory so that we can forget about it        */
+    /*        Load the rom uint8array into memory        */
     debug.log('Copying ROM to memory');
-    M.set(romBuf, PROGRAM_ADDRESS_START);
+    M.set(rom, PROGRAM_ADDRESS_START);
 
     /*        Call the next function in the init sequence        */
-    callback(romBuf.length);
+    callback(rom.length);
 
   });
 
