@@ -1,22 +1,20 @@
 require('./memory');
 var debug = require('./debug');
 
-const SCREEN_WIDTH   = 128; // process.stdout.columns;
-const SCREEN_HEIGHT  = 32;  // process.stdout.rows;
-const WIDTH_RATIO    = SCREEN_WIDTH / DISPLAY_WIDTH_BYTES;
-const HEIGHT_RATIO   = SCREEN_HEIGHT / DISPLAY_HEIGHT_BYTES;
-const PIXEL_OFF      = ' ';
-const PIXEL_ON       = '+';
+const CANVAS         = document.getElementById('screen');
+const SCREEN         = CANVAS.getContext('2d');
+const SCREEN_WIDTH   = CANVAS.width;
+const SCREEN_HEIGHT  = CANVAS.height;
+const WIDTH_RATIO    = Math.floor(SCREEN_WIDTH / DISPLAY_WIDTH_BYTES);
+const HEIGHT_RATIO   = Math.floor(SCREEN_HEIGHT / DISPLAY_HEIGHT_BYTES);
 
-_clearLines = function() {
-  // for (var i = 0; i < process.stdout.rows; i++) {
-  //   process.stdout.write('\n');
-  // }
+_clearCanvas = function() {
+  SCREEN.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 };
 
 exports.clear = function() {
   debug.log('Clearing the display');
-  _clearLines();
+  _clearCanvas();
   for (var i = 0; i < display.length; i++) {
     display[i] = 0;
   }
@@ -28,29 +26,12 @@ exports.init = function() {
 };
 
 exports.paint = function() {
-  _clearLines();
-  var printRow = '';
+  _clearCanvas();
   for (var i = 0; i < display.length; i++) {
-
-    if (i % DISPLAY_WIDTH_BYTES === 0) {
-      printToScreen(printRow);
-      printRow = '';
+    if (display[i] === 1) {
+      var x = (i % DISPLAY_WIDTH_BYTES) * WIDTH_RATIO;
+      var y = Math.floor(i / DISPLAY_HEIGHT_BYTES) * HEIGHT_RATIO;
+      SCREEN.clearRect(x, y, WIDTH_RATIO, HEIGHT_RATIO);
     }
-
-    if (display[i] === 1)
-      printRow = fillPixel(printRow, PIXEL_ON);
-    else
-      printRow = fillPixel(printRow, PIXEL_OFF);
   }
-}
-
-function fillPixel(str, char) {
-  // for (var i = 0; i < WIDTH_RATIO; i++)
-  str += char;
-  return str;
-}
-
-function printToScreen(str) {
-  for (var i = 0; i < HEIGHT_RATIO; i++) {}
-    // process.stdout.write(str + '\n');
 }

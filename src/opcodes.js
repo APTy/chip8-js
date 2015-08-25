@@ -138,7 +138,7 @@ function op_D(inst) {
     addSpriteToDisplay(M[I+i], inst >> 0x8 & 0xF, (inst >> 0x4 & 0xF) + i);
   }
   display.paint();
-  return OP_ERROR_NOT_IMPLEMENTED;
+  return OP_SUCCESS;
 }
 function op_E(inst) {
   // EX9E: Skips the next instruction if the key stored in VX is pressed.
