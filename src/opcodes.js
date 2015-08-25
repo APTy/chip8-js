@@ -142,8 +142,9 @@ function op_D(inst) {
 }
 function op_E(inst) {
   // EX9E: Skips the next instruction if the key stored in VX is pressed.
-  input.isKeyDown(inst >> 0x8 & 0xF);
-  return OP_ERROR_NOT_IMPLEMENTED;
+  debug.log('%s: Checking if key %s is pressed', inst.toString(16), V[inst >> 0x8 & 0xF]);
+  input.isKeyDown(V[inst >> 0x8 & 0xF]);
+  return OP_SUCCESS;
 }
 function op_F(inst) {
   switch (inst & 0xFF) {
