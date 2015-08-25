@@ -50,6 +50,6 @@ global.loadFonts = function() {
 
 global.addSpriteToDisplay = function(sprite, x, y) {
   for (var i = 7; i >= 0; i--) {
-    display[x + y * DISPLAY_HEIGHT_BYTES + 7 - i] ^= sprite >> i & 1;
+    display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] ^= sprite >> i & 1;
   }
 };

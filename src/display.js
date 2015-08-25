@@ -30,7 +30,7 @@ exports.paint = function() {
   for (var i = 0; i < display.length; i++) {
     if (display[i] === 1) {
       var x = (i % DISPLAY_WIDTH_BYTES) * WIDTH_RATIO;
-      var y = Math.floor(i / DISPLAY_HEIGHT_BYTES) * HEIGHT_RATIO;
+      var y = Math.floor(i / DISPLAY_WIDTH_BYTES) * HEIGHT_RATIO;
       SCREEN.clearRect(x, y, WIDTH_RATIO, HEIGHT_RATIO);
     }
   }
