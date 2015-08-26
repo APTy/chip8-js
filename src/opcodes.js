@@ -135,7 +135,7 @@ function op_C(inst) {
 function op_D(inst) {
   debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
   for (var i = 0; i < (inst & 0xF); i++) {
-    addSpriteToDisplay(M[I+i], inst >> 0x8 & 0xF, (inst >> 0x4 & 0xF) + i);
+    addSpriteToDisplay(M[I+i], V[inst >> 0x8 & 0xF], V[(inst >> 0x4 & 0xF)] + i);
   }
   display.paint();
   return OP_SUCCESS;
