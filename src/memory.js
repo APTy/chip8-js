@@ -20,18 +20,19 @@ global.OP_SKIP_NEXT_INSTRUCTION      = 0x02;
 global.OP_ERROR_NOT_IMPLEMENTED      = 0x04;
 
 /*  Memory Allocation  */
-global.M  = new Uint8Array(MEMORY_BYTE_SIZE);      // Main Memory
-global.V  = new Uint8Array(REGISTER_BYTE_SIZE);    // Register
-global.S  = new Uint16Array(STACK_BYTE_SIZE);      // Stack
-global.I  = 0x0000;                                // Address Register
-global.PC = 0x0000;                                // Program Counter
-global.SP = 0x00;                                  // Stack Pointer
-global.DT = 0x0000;                                // Delay Timer
-global.ST = 0x0000;                                // Sound Timer
+global.M       = new Uint8Array(MEMORY_BYTE_SIZE);      // Main Memory
+global.V       = new Uint8Array(REGISTER_BYTE_SIZE);    // Register
+global.S       = new Uint16Array(STACK_BYTE_SIZE);      // Stack
+global.I       = 0x0000;                                // Address Register
+global.PC      = 0x0000;                                // Program Counter
+global.SP      = 0x00;                                  // Stack Pointer
+global.DT      = 0x0000;                                // Delay Timer
+global.ST      = 0x0000;                                // Sound Timer
+global.display = new Uint8Array(DISPLAY_WIDTH_BYTES *
+                                DISPLAY_HEIGHT_BYTES);  // Display Area
 
-global.display      = new Uint8Array(DISPLAY_WIDTH_BYTES *
-                                     DISPLAY_HEIGHT_BYTES);  // Display Area
 
+/*  Get ROM from server and load into memory  */
 global.loadROMIntoMemory = function(ROM, callback) {
   var http = require('./http');
 
@@ -47,7 +48,6 @@ global.loadROMIntoMemory = function(ROM, callback) {
     callback(rom.length);
 
   });
-
 };
 
 global.memInit = function() {
@@ -58,6 +58,7 @@ global.memInit = function() {
   });
 };
 
+/*  Add one byte of information (8 pixels) onto the display */
 global.addSpriteToDisplay = function(sprite, x, y) {
   for (var i = 7; i >= 0; i--) {
     display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] ^= sprite >> i & 1;

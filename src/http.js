@@ -1,3 +1,4 @@
+/*  Get an array buffer of ROM data from the server  */
 exports.get = function(path, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', "http://localhost:3000/" + path);

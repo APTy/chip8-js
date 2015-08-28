@@ -37,23 +37,29 @@ function op_2(inst) {
 
 // Skips the next instruction if VX equals NN.
 function op_3(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) == 0x0)
+  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) == 0x0) {
     return OP_SKIP_NEXT_INSTRUCTION;
-  return OP_SUCCESS;
+  } else {
+    return OP_SUCCESS;
+  }
 }
 
 // Skips the next instruction if VX doesn't equal NN.
 function op_4(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) != 0x0)
+  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) != 0x0) {
     return OP_SKIP_NEXT_INSTRUCTION;
-  return OP_SUCCESS;
+  } else {
+    return OP_SUCCESS;
+  }
 }
 
 // Skips the next instruction if VX equals VY.
 function op_5(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) == 0x0)
+  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) == 0x0) {
     return OP_SKIP_NEXT_INSTRUCTION;
-  return OP_SUCCESS;
+  } else {
+    return OP_SUCCESS;
+  }
 }
 
 // Sets VX to NN.
@@ -131,9 +137,11 @@ function op_8(inst) {
 
 // Skips the next instruction if VX doesn't equal VY.
 function op_9(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) != 0x0)
+  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) != 0x0) {
     return OP_SKIP_NEXT_INSTRUCTION;
-  return OP_SUCCESS;
+  } else {
+    return OP_SUCCESS;
+  }
 }
 
 // Sets I to the address NNN.
@@ -156,6 +164,8 @@ function op_C(inst) {
   V[inst >> 0x8 & 0xFF] = (Math.random()*256 >> 0) & (inst & 0xFF);
   return OP_SUCCESS;
 }
+
+// DXYN: Draw XOR pixels onto screen from index register I
 function op_D(inst) {
   debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
   for (var i = 0; i < (inst & 0xF); i++) {
@@ -163,6 +173,7 @@ function op_D(inst) {
   }
   return OP_SUCCESS;
 }
+
 function op_E(inst) {
   switch (inst & 0xFF) {
     case 0x9E: // EX9E: Skips the next instruction if the key stored in VX is pressed.
@@ -179,6 +190,7 @@ function op_E(inst) {
       return OP_ERROR_NOT_IMPLEMENTED;
   }
 }
+
 function op_F(inst) {
   switch (inst & 0xFF) {
     case 0x07:    // FX07	Sets VX to the value of the delay timer.
