@@ -15,6 +15,10 @@ This project is a JavaScript implementation of an emulator for CHIP-8's virtual 
 ![pong](docs/pong.png)
 
 
+![pong](docs/pong.png)
+(yes, we'll build this!)
+
+
 ### The CPU
 
 Before high-level scripting languages like JavaScript were invented (and even before their modern-day compiled counterparts like C and Java), programmers needed to use a language that machines could understand. One such language that many computers today understand is called [Assembly](https://en.wikipedia.org/wiki/Assembly_language). Assembly code provides a computer with a set of instructions (simple commands) to act on. The Central Processing Unit (CPU) is then in charge of making sense of (decoding) and carrying out (executing) the instructions. The CPU makes use of a few circuits (which we *emulate* with simple variables) in order to accomplish this. So what do these instructions do?
