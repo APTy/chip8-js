@@ -1,5 +1,6 @@
 require('./memory');
 var debug = require('./debug');
+var display = require('./display');
 
 const TIMER_HERTZ_FREQUENCY = 60;
 const SOUND_ALERT_CODE = '\007';
@@ -18,6 +19,7 @@ function updateTimers() {
 
 exports.tick = function() {
   if (Date.now() - lastTick > 1000 / TIMER_HERTZ_FREQUENCY) {
+    display.paint();
     updateTimers();
     lastTick = Date.now();
   }

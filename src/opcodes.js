@@ -161,7 +161,6 @@ function op_D(inst) {
   for (var i = 0; i < (inst & 0xF); i++) {
     addSpriteToDisplay(M[I+i], V[inst >> 0x8 & 0xF], V[(inst >> 0x4 & 0xF)] + i);
   }
-  display.paint();
   return OP_SUCCESS;
 }
 function op_E(inst) {

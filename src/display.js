@@ -26,12 +26,15 @@ exports.init = function() {
 };
 
 exports.paint = function() {
-  _clearCanvas();
   for (var i = 0; i < display.length; i++) {
     if (display[i] === 1) {
       var x = (i % DISPLAY_WIDTH_BYTES) * WIDTH_RATIO;
       var y = Math.floor(i / DISPLAY_WIDTH_BYTES) * HEIGHT_RATIO;
       SCREEN.clearRect(x, y, WIDTH_RATIO, HEIGHT_RATIO);
+    } else if (display[i] === 0) {
+      var x = (i % DISPLAY_WIDTH_BYTES) * WIDTH_RATIO;
+      var y = Math.floor(i / DISPLAY_WIDTH_BYTES) * HEIGHT_RATIO;
+      SCREEN.fillRect(x, y, WIDTH_RATIO, HEIGHT_RATIO);
     }
   }
 }
