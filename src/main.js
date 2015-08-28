@@ -39,15 +39,13 @@ function cycle() {
   var instruction = (M[PC] << 8) + M[PC+1];
   PC += OP_CODE_BYTE_LENGTH;
 
-  /*  The opcode is located at the 4 most significant bytes
-            of each instruction. Shifting off the 12 least
-            significant bytes will isolate the opcode.  */
+  /*  Shift off 12 least significant bytes to the the opcode  */
   var op = instruction >> 0xC;
 
-  /*  Send the instruction to the correct opcode, save opreturn  */
+  /*  Send the instruction to the correct opcode, save the op return  */
   var opReturn = ops[op](instruction);
 
-  /*  Skip instruction if opreturn tells us to  */
+  /*  Skip instruction if the op return tells us to  */
   if (opReturn == OP_SKIP_NEXT_INSTRUCTION) {
     debug.log('Skipping instruction at address %s', PC);
     PC += OP_CODE_BYTE_LENGTH;
