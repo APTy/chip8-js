@@ -1,8 +1,8 @@
-require('./memory');
-require('./returnCodes');
 var debug = require('./debug');
 var input = require('./input');
 var display = require('./display');
+
+require('./memory');
 
 const ops = [op_0, op_1, op_2, op_3, op_4, op_5, op_6, op_7,
              op_8, op_9, op_A, op_B, op_C, op_D, op_E, op_F];

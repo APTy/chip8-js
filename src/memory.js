@@ -11,6 +11,11 @@ global.PROGRAM_ADDRESS_START         = 0x200;
 global.DISPLAY_WIDTH_BYTES           = 0X40;
 global.DISPLAY_HEIGHT_BYTES          = 0X20;
 
+global.OP_SUCCESS                    = 0x00;
+global.OP_ERROR                      = 0x01;
+global.OP_SKIP_NEXT_INSTRUCTION      = 0x02;
+global.OP_ERROR_NOT_IMPLEMENTED      = 0x04;
+
 global.M  = new Uint8Array(MEMORY_BYTE_SIZE);      // Main Memory
 global.V  = new Uint8Array(REGISTER_BYTE_SIZE);    // Register
 global.S  = new Uint16Array(STACK_BYTE_SIZE);      // Stack
@@ -26,22 +31,22 @@ global.display      = new Uint8Array(DISPLAY_WIDTH_BYTES *
 global.loadROMIntoMemory = function(ROM, callback) {
   var http = require('./http');
 
-  /*        Hit server for ROM data        */
+  /*  Hit server for ROM data  */
   debug.log('Getting ROM from server');
   http.get(ROM, function(rom) {
 
-    /*        Load the rom uint8array into memory        */
+    /*  Load the rom uint8array into memory  */
     debug.log('Copying ROM to memory');
     M.set(rom, PROGRAM_ADDRESS_START);
 
-    /*        Call the next function in the init sequence        */
+    /*  Call the next function in the init sequence  */
     callback(rom.length);
 
   });
 
 };
 
-global.loadFonts = function() {
+global.memInit = function() {
   debug.log('Loading fonts into memory');
   var fonts = require('./fonts');
   fonts.forEach(function(font, index) {
