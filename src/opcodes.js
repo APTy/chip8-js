@@ -85,10 +85,34 @@ function op_8(inst) {
       V[inst >> 0x8 & 0xF] ^= V[inst >> 0x4 & 0xF];
       break;
     case 0x4:   // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      var carry = V[inst >> 0x8 & 0xF] & V[inst >> 0x4 & 0xF];
+      var result = V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF];
+      if (carry != 0) {
+        V[0xF] = 1;
+        while (carry != 0) {
+          var shiftedcarry = carry << 1;
+          carry = result & shiftedcarry;
+          result ^= shiftedcarry;
+        }
+      } else {
+        V[0xF] = 0;
+      }
+      V[inst >> 0x8 & 0xF] = result;
       break;
     case 0x5:   // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-      return OP_ERROR_NOT_IMPLEMENTED;
+      var carry = -V[inst >> 0x8 & 0xF] & V[inst >> 0x4 & 0xF];
+      var result = -V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF];
+      if (carry != 0) {
+        V[0xF] = 1;
+        while (carry != 0) {
+          var shiftedcarry = carry << 1;
+          carry = result & shiftedcarry;
+          result ^= shiftedcarry;
+        }
+      } else {
+        V[0xF] = 0;
+      }
+      V[inst >> 0x8 & 0xF] = result;
       break;
     case 0x6:   // Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
       return OP_ERROR_NOT_IMPLEMENTED;
