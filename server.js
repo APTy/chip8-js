@@ -4,11 +4,12 @@ var express = require('express');
 var chip8 = express();
 
 const ROM_DIRECTORY = './ROM/';
+const CH8_EXTENSION = '.ch8';
 
 chip8.get('/roms', function(req, res) {
   var romQuery = url.parse(req.url, true).query;
   var romName = romQuery.name;
-  var romURI = ROM_DIRECTORY + romName.toUpperCase();
+  var romURI = ROM_DIRECTORY + romName + CH8_EXTENSION;
   var romData = fs.readFile(romURI, function(err, data) {
     if (err) {
       console.log('Couldn\'t find rom data');
