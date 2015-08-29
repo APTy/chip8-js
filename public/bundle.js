@@ -253,7 +253,7 @@ global.loadROMIntoMemory = function(ROM, callback) {
 
   /*  Hit server for ROM data  */
   debug.log('Getting ROM from server');
-  http.get(ROM, function(rom) {
+  http.get('roms?name=' + ROM, function(rom) {
 
     /*  Load the rom uint8array into memory  */
     debug.log('Copying ROM to memory');
@@ -529,4 +529,4 @@ function op_F(inst) {
 
 module.exports = ops;
 
-},{"./debug":2,"./display":3,"./input":6,"./memory":8}]},{},[7]);
+},{"./debug":2,"./display":3,"./input":6,"./memory":8}]},{},[1,2,3,4,5,6,7,8,9]);
