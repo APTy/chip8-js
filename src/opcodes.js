@@ -37,7 +37,8 @@ function op_2(inst) {
 
 // Skips the next instruction if VX equals NN.
 function op_3(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) == 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) equals %s', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst & 0xFF);
+  if ((V[inst >> 0x8 & 0xF] === (inst & 0xFF))) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -46,7 +47,8 @@ function op_3(inst) {
 
 // Skips the next instruction if VX doesn't equal NN.
 function op_4(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) != 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) doesn\'t equal %s', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst & 0xFF);
+  if ((V[inst >> 0x8 & 0xF] !== (inst & 0xFF))) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -55,7 +57,8 @@ function op_4(inst) {
 
 // Skips the next instruction if VX equals VY.
 function op_5(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) == 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) equals V%s (%s)', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst >> 0x4 & 0xF, V[inst >> 0x4 & 0xF]);
+  if ((V[inst >> 0x8 & 0xF] === V[inst >> 0x4 & 0xF])) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -91,34 +94,16 @@ function op_8(inst) {
       V[inst >> 0x8 & 0xF] ^= V[inst >> 0x4 & 0xF];
       break;
     case 0x4:   // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
-      var carry = V[inst >> 0x8 & 0xF] & V[inst >> 0x4 & 0xF];
-      var result = V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF];
-      if (carry != 0) {
-        V[0xF] = 1;
-        while (carry != 0) {
-          var shiftedcarry = carry << 1;
-          carry = result & shiftedcarry;
-          result ^= shiftedcarry;
-        }
-      } else {
-        V[0xF] = 0;
-      }
-      V[inst >> 0x8 & 0xF] = result;
+      if ((V[inst >> 0x8 & 0xF] += V[inst >> 0x4 & 0xF]) > 0xFF)
+        V[0xF] = 1
+      else
+        V[0xF] = 0
       break;
     case 0x5:   // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-      var carry = -V[inst >> 0x8 & 0xF] & V[inst >> 0x4 & 0xF];
-      var result = -V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF];
-      if (carry != 0) {
-        V[0xF] = 1;
-        while (carry != 0) {
-          var shiftedcarry = carry << 1;
-          carry = result & shiftedcarry;
-          result ^= shiftedcarry;
-        }
-      } else {
-        V[0xF] = 0;
-      }
-      V[inst >> 0x8 & 0xF] = result;
+      if ((V[inst >> 0x8 & 0xF] -= V[inst >> 0x4 & 0xF]) > 0)
+        V[0xF] = 1
+      else
+        V[0xF] = 0
       break;
     case 0x6:   // Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
       return OP_ERROR_NOT_IMPLEMENTED;
@@ -137,7 +122,8 @@ function op_8(inst) {
 
 // Skips the next instruction if VX doesn't equal VY.
 function op_9(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) != 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) doesn\'t equal V%s (%s)', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst >> 0x4 & 0xF, V[inst >> 0x4 & 0xF]);
+  if ((V[inst >> 0x8 & 0xF] !== V[inst >> 0x4 & 0xF])) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -166,10 +152,13 @@ function op_C(inst) {
 }
 
 // DXYN: Draw XOR pixels onto screen from index register I
+// register VF is set to 1 if a pixel is cleared, otherwise 0
 function op_D(inst) {
   debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
+  V[0xF] = 0 // Reset state of register VF
   for (var i = 0; i < (inst & 0xF); i++) {
-    addSpriteToDisplay(M[I+i], V[inst >> 0x8 & 0xF], V[(inst >> 0x4 & 0xF)] + i);
+    if(addSpriteToDisplay(M[I+i], V[inst >> 0x8 & 0xF], V[(inst >> 0x4 & 0xF)] + i))
+      V[0xF] = 1
   }
   return OP_SUCCESS;
 }

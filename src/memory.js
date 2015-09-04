@@ -60,7 +60,11 @@ global.memInit = function() {
 
 /*  Add one byte of information (8 pixels) onto the display */
 global.addSpriteToDisplay = function(sprite, x, y) {
+  var clearedPixel = false;
   for (var i = 7; i >= 0; i--) {
     display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] ^= sprite >> i & 1;
+    if (display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] === 0 && (sprite >> i & 1) === 1)
+      clearedPixel = true; // Check if pixel was cleared
   }
+  return clearedPixel // Return whether a pixel was cleared during the op
 };

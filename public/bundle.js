@@ -110,7 +110,7 @@ module.exports = fonts;
 /*  Get an array buffer of ROM data from the server  */
 exports.get = function(path, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', "http://localhost:3000/" + path);
+  xhr.open('GET', path);
   xhr.responseType = 'arraybuffer';
   xhr.send();
   xhr.onload = function(e) {
@@ -136,7 +136,7 @@ const K = 75;
 const L = 76;
 
 var pressedKeys = {};
-const HEX_KEY_MAP = new Uint16Array([0, W, 0, 0, S, 0, 0, 0,
+const HEX_KEY_MAP = new Uint16Array([32, W, 0, 0, S, 0, 0, 0,
                                      0, 0, 0, 0, I, K, 0, 0]);
 
 exports.init = function() {
@@ -164,6 +164,7 @@ require('./memory');
 
 /* CHIP-8 has 35 opcodes, which are all two bytes long and stored Big-endian. */
 const OP_CODE_BYTE_LENGTH = 2;
+var disassembly;
 
 /* Set current ROM for testing */
 const CURRENT_ROM = 'PONG';
@@ -182,7 +183,7 @@ const CURRENT_ROM = 'PONG';
     PC = PROGRAM_ADDRESS_START;
 
     /*  Start instruction cycle and continue every 1ms  */
-    var disassembly = setInterval(cycle, 1);
+    disassembly = setInterval(cycle, 1);
   });
 
 })();
@@ -209,6 +210,7 @@ function cycle() {
     console.error('Error: instruction %s not implemented', instruction.toString(16));
     clearInterval(disassembly);
   }
+  if (input.isKeyDown(0)) clearInterval(disassembly);
 }
 
 },{"./clock":1,"./debug":2,"./display":3,"./input":6,"./memory":8,"./opcodes":9}],8:[function(require,module,exports){
@@ -275,9 +277,13 @@ global.memInit = function() {
 
 /*  Add one byte of information (8 pixels) onto the display */
 global.addSpriteToDisplay = function(sprite, x, y) {
+  var clearedPixel = false;
   for (var i = 7; i >= 0; i--) {
     display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] ^= sprite >> i & 1;
+    if (display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] === 0 && (sprite >> i & 1) === 1)
+      clearedPixel = true; // Check if pixel was cleared
   }
+  return clearedPixel // Return whether a pixel was cleared during the op
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
@@ -321,7 +327,8 @@ function op_2(inst) {
 
 // Skips the next instruction if VX equals NN.
 function op_3(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) == 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) equals %s', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst & 0xFF);
+  if ((V[inst >> 0x8 & 0xF] === (inst & 0xFF))) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -330,7 +337,8 @@ function op_3(inst) {
 
 // Skips the next instruction if VX doesn't equal NN.
 function op_4(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ (inst & 0xFF)) != 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) doesn\'t equal %s', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst & 0xFF);
+  if ((V[inst >> 0x8 & 0xF] !== (inst & 0xFF))) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -339,7 +347,8 @@ function op_4(inst) {
 
 // Skips the next instruction if VX equals VY.
 function op_5(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) == 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) equals V%s (%s)', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst >> 0x4 & 0xF, V[inst >> 0x4 & 0xF]);
+  if ((V[inst >> 0x8 & 0xF] === V[inst >> 0x4 & 0xF])) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -375,34 +384,16 @@ function op_8(inst) {
       V[inst >> 0x8 & 0xF] ^= V[inst >> 0x4 & 0xF];
       break;
     case 0x4:   // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
-      var carry = V[inst >> 0x8 & 0xF] & V[inst >> 0x4 & 0xF];
-      var result = V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF];
-      if (carry != 0) {
-        V[0xF] = 1;
-        while (carry != 0) {
-          var shiftedcarry = carry << 1;
-          carry = result & shiftedcarry;
-          result ^= shiftedcarry;
-        }
-      } else {
-        V[0xF] = 0;
-      }
-      V[inst >> 0x8 & 0xF] = result;
+      if ((V[inst >> 0x8 & 0xF] += V[inst >> 0x4 & 0xF]) > 0xFF)
+        V[0xF] = 1
+      else
+        V[0xF] = 0
       break;
     case 0x5:   // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-      var carry = -V[inst >> 0x8 & 0xF] & V[inst >> 0x4 & 0xF];
-      var result = -V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF];
-      if (carry != 0) {
-        V[0xF] = 1;
-        while (carry != 0) {
-          var shiftedcarry = carry << 1;
-          carry = result & shiftedcarry;
-          result ^= shiftedcarry;
-        }
-      } else {
-        V[0xF] = 0;
-      }
-      V[inst >> 0x8 & 0xF] = result;
+      if ((V[inst >> 0x8 & 0xF] -= V[inst >> 0x4 & 0xF]) > 0)
+        V[0xF] = 1
+      else
+        V[0xF] = 0
       break;
     case 0x6:   // Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
       return OP_ERROR_NOT_IMPLEMENTED;
@@ -421,7 +412,8 @@ function op_8(inst) {
 
 // Skips the next instruction if VX doesn't equal VY.
 function op_9(inst) {
-  if ((V[inst >> 0x8 & 0xF] ^ V[inst >> 0x4 & 0xF]) != 0x0) {
+  debug.log('%s: Skipping next if V%s (%s) doesn\'t equal V%s (%s)', inst.toString(16), inst >> 0x8 & 0xF, V[inst >> 0x8 & 0xF], inst >> 0x4 & 0xF, V[inst >> 0x4 & 0xF]);
+  if ((V[inst >> 0x8 & 0xF] !== V[inst >> 0x4 & 0xF])) {
     return OP_SKIP_NEXT_INSTRUCTION;
   } else {
     return OP_SUCCESS;
@@ -450,10 +442,13 @@ function op_C(inst) {
 }
 
 // DXYN: Draw XOR pixels onto screen from index register I
+// register VF is set to 1 if a pixel is cleared, otherwise 0
 function op_D(inst) {
   debug.log('%s: Drawing from I to (%s, %s) %s', inst.toString(16), inst >> 0x8 & 0xF, inst >> 0x4 & 0xF, inst & 0xF);
+  V[0xF] = 0 // Reset state of register VF
   for (var i = 0; i < (inst & 0xF); i++) {
-    addSpriteToDisplay(M[I+i], V[inst >> 0x8 & 0xF], V[(inst >> 0x4 & 0xF)] + i);
+    if(addSpriteToDisplay(M[I+i], V[inst >> 0x8 & 0xF], V[(inst >> 0x4 & 0xF)] + i))
+      V[0xF] = 1
   }
   return OP_SUCCESS;
 }

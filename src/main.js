@@ -8,6 +8,7 @@ require('./memory');
 
 /* CHIP-8 has 35 opcodes, which are all two bytes long and stored Big-endian. */
 const OP_CODE_BYTE_LENGTH = 2;
+var disassembly;
 
 /* Set current ROM for testing */
 const CURRENT_ROM = 'PONG';
@@ -26,7 +27,7 @@ const CURRENT_ROM = 'PONG';
     PC = PROGRAM_ADDRESS_START;
 
     /*  Start instruction cycle and continue every 1ms  */
-    var disassembly = setInterval(cycle, 1);
+    disassembly = setInterval(cycle, 1);
   });
 
 })();
