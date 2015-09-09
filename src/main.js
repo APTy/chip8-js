@@ -11,7 +11,7 @@ const OP_CODE_BYTE_LENGTH = 2;
 var disassembly;
 
 /* Set current ROM for testing */
-const CURRENT_ROM = 'PONG';
+const CURRENT_ROM = window.location.hash.substring(1);
 
 (function main() {
 

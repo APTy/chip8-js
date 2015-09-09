@@ -10,9 +10,19 @@ const I = 73;
 const K = 75;
 const L = 76;
 
+const Z = 90
+const X = 88
+const C = 67
+const V = 86
+
+const B = 66
+const N = 78
+const M = 77
+const COMMA = 188
+
 var pressedKeys = {};
-const HEX_KEY_MAP = new Uint16Array([0, W, 0, 0, S, 0, 0, 0,
-                                     0, 0, 0, 0, I, K, 0, 0]);
+const HEX_KEY_MAP = new Uint16Array([Z, W, X, A, S, D, C, V,
+                                     B, N, M, COMMA, I, K, J, L]);
 
 exports.init = function() {
   debug.log('Initializing input listeners');

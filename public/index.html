@@ -2,7 +2,30 @@
 <html>
 <head><head>
 <body>
-  <canvas id="screen" width="800" height="600">
-  <script src="bundle.js"></script>
+  <h1>Chip-8 Player</h1>
+  <h4>List of Games</h4>
+  <div id="list">
+  </div>
+  <script>
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/list');
+    xhr.responseType = 'json';
+    xhr.send();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var roms = xhr.response;
+        var list = document.getElementById('list');
+
+        roms.forEach(function(rom) {
+          var div = document.createElement('div');
+          var anchor = document.createElement('a');
+          anchor.href = 'play.html#' + rom;
+          anchor.innerHTML = rom;
+          div.appendChild(anchor);
+          list.appendChild(div);
+        })
+      }
+    }
+  </script>
 </body>
 </html>
