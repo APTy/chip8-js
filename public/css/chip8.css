@@ -1,0 +1,11 @@
+body {
+  background-color: #222;
+  color: #C0C0C0;
+  text-align: center;
+  font-family: "Lucida Console", Monaco, monospace
+}
+
+canvas {
+  padding: 20px;
+  border: solid 4px #888;
+}

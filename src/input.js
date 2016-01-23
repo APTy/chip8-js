@@ -25,21 +25,20 @@ KeyboardInput.I = 73;
 KeyboardInput.K = 75;
 KeyboardInput.L = 76;
 
-KeyboardInput.Z = 90
-KeyboardInput.X = 88
-KeyboardInput.C = 67
-KeyboardInput.V = 86
-
-KeyboardInput.B = 66
-KeyboardInput.N = 78
-KeyboardInput.M = 77
-KeyboardInput.COMMA = 188
+KeyboardInput.M = 77;
+KeyboardInput.H = 72;
+KeyboardInput.C = 67;
+KeyboardInput.Z = 90;
+KeyboardInput.X = 88;
+KeyboardInput.B = 66;
+KeyboardInput.SPACE = 32;
+KeyboardInput.COMMA = 188;
 
 KeyboardInput.HEX_KEY_MAP = new Uint16Array([
   KeyboardInput.Z, KeyboardInput.W, KeyboardInput.X, KeyboardInput.A,
-  KeyboardInput.S, KeyboardInput.D, KeyboardInput.C, KeyboardInput.V,
-  KeyboardInput.B, KeyboardInput.N, KeyboardInput.M, KeyboardInput.COMMA,
-  KeyboardInput.I, KeyboardInput.K, KeyboardInput.J, KeyboardInput.L,
+  KeyboardInput.S, KeyboardInput.SPACE, KeyboardInput.H, KeyboardInput.I,
+  KeyboardInput.B, KeyboardInput.J, KeyboardInput.K, KeyboardInput.COMMA,
+  KeyboardInput.D, KeyboardInput.C, KeyboardInput.L, KeyboardInput.M,
 ]);
 
 /**

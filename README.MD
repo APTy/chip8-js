@@ -12,7 +12,7 @@ This project is a JavaScript implementation of an emulator for CHIP-8's virtual 
   2. Flow control and memory management
   3. Lower-level design principles
 
-![pong](docs/pong.png)
+![pong](docs/breakout.png)
 
 
 ### The CPU

@@ -12,6 +12,7 @@
   var loader = new loader.HTTPLoader();
   var cpu = new cpu.CPU(mm, display, input, loader);
 
-  cpu.initialize();
+  var current_rom = window.location.hash.substring(1);
+  cpu.initialize(current_rom);
 
 })();

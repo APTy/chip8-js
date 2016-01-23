@@ -16,6 +16,9 @@ function Display(mm) {
   this.height_ratio         = Math.floor(this.screen_height / this.display_height_bytes);
 }
 
+Display.BLANK_COLOR = '#222222';
+Display.FILLED_COLOR = '#C0C0C0';
+
 /**
 * Prepare the display for use.
 **/
@@ -27,6 +30,7 @@ Display.prototype.initialize = function() {
 * Clear the screen and all display memory.
 **/
 Display.prototype.clear = function() {
+  this.screen.fillStyle = Display.BLANK_COLOR;
   this.screen.fillRect(0, 0, this.screen_width, this.screen_height);
   this.mm.clear_display();
 };
@@ -39,8 +43,10 @@ Display.prototype.paint = function() {
     var x = (index % this.display_width_bytes) * this.width_ratio;
     var y = Math.floor(index / this.display_width_bytes) * this.height_ratio;
     if (pixel === 1) {
-      this.screen.clearRect(x, y, this.width_ratio, this.height_ratio);
+      this.screen.fillStyle = Display.FILLED_COLOR;
+      this.screen.fillRect(x, y, this.width_ratio, this.height_ratio);
     } else {
+      this.screen.fillStyle = Display.BLANK_COLOR;
       this.screen.fillRect(x, y, this.width_ratio, this.height_ratio);
     }
   }.bind(this));

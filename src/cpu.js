@@ -15,7 +15,6 @@ function CPU(mm, display, input, loader, clock_frequency) {
   this.decoder = decoder;
   this.clock = new clock.Clock(mm, display, clock_frequency);
   this.executor = new executor.Executor(mm, display, input);
-  this.current_rom = window.location.hash.substring(1);
 }
 
 CPU.DEFAULT_CLOCK_FREQUENCY = 1000; // Cycles per second
@@ -23,7 +22,8 @@ CPU.DEFAULT_CLOCK_FREQUENCY = 1000; // Cycles per second
 /**
 * Initialize the CPU, set it's memory, read in the ROM, and start the cycle
 **/
-CPU.prototype.initialize = function() {
+CPU.prototype.initialize = function(rom) {
+  this.current_rom = rom;
   this.mm.initialize();
   this.loader.read_rom(this.current_rom, function(rom) {
     this.mm.load_into_memory(rom);

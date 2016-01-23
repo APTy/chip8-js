@@ -56,7 +56,6 @@ function CPU(mm, display, input, loader, clock_frequency) {
   this.decoder = decoder;
   this.clock = new clock.Clock(mm, display, clock_frequency);
   this.executor = new executor.Executor(mm, display, input);
-  this.current_rom = window.location.hash.substring(1);
 }
 
 CPU.DEFAULT_CLOCK_FREQUENCY = 1000; // Cycles per second
@@ -64,7 +63,8 @@ CPU.DEFAULT_CLOCK_FREQUENCY = 1000; // Cycles per second
 /**
 * Initialize the CPU, set it's memory, read in the ROM, and start the cycle
 **/
-CPU.prototype.initialize = function() {
+CPU.prototype.initialize = function(rom) {
+  this.current_rom = rom;
   this.mm.initialize();
   this.loader.read_rom(this.current_rom, function(rom) {
     this.mm.load_into_memory(rom);
@@ -131,6 +131,9 @@ function Display(mm) {
   this.height_ratio         = Math.floor(this.screen_height / this.display_height_bytes);
 }
 
+Display.BLANK_COLOR = '#222222';
+Display.FILLED_COLOR = '#C0C0C0';
+
 /**
 * Prepare the display for use.
 **/
@@ -142,6 +145,7 @@ Display.prototype.initialize = function() {
 * Clear the screen and all display memory.
 **/
 Display.prototype.clear = function() {
+  this.screen.fillStyle = Display.BLANK_COLOR;
   this.screen.fillRect(0, 0, this.screen_width, this.screen_height);
   this.mm.clear_display();
 };
@@ -154,8 +158,10 @@ Display.prototype.paint = function() {
     var x = (index % this.display_width_bytes) * this.width_ratio;
     var y = Math.floor(index / this.display_width_bytes) * this.height_ratio;
     if (pixel === 1) {
-      this.screen.clearRect(x, y, this.width_ratio, this.height_ratio);
+      this.screen.fillStyle = Display.FILLED_COLOR;
+      this.screen.fillRect(x, y, this.width_ratio, this.height_ratio);
     } else {
+      this.screen.fillStyle = Display.BLANK_COLOR;
       this.screen.fillRect(x, y, this.width_ratio, this.height_ratio);
     }
   }.bind(this));
@@ -443,21 +449,20 @@ KeyboardInput.I = 73;
 KeyboardInput.K = 75;
 KeyboardInput.L = 76;
 
-KeyboardInput.Z = 90
-KeyboardInput.X = 88
-KeyboardInput.C = 67
-KeyboardInput.V = 86
-
-KeyboardInput.B = 66
-KeyboardInput.N = 78
-KeyboardInput.M = 77
-KeyboardInput.COMMA = 188
+KeyboardInput.M = 77;
+KeyboardInput.H = 72;
+KeyboardInput.C = 67;
+KeyboardInput.Z = 90;
+KeyboardInput.X = 88;
+KeyboardInput.B = 66;
+KeyboardInput.SPACE = 32;
+KeyboardInput.COMMA = 188;
 
 KeyboardInput.HEX_KEY_MAP = new Uint16Array([
   KeyboardInput.Z, KeyboardInput.W, KeyboardInput.X, KeyboardInput.A,
-  KeyboardInput.S, KeyboardInput.D, KeyboardInput.C, KeyboardInput.V,
-  KeyboardInput.B, KeyboardInput.N, KeyboardInput.M, KeyboardInput.COMMA,
-  KeyboardInput.I, KeyboardInput.K, KeyboardInput.J, KeyboardInput.L,
+  KeyboardInput.S, KeyboardInput.SPACE, KeyboardInput.H, KeyboardInput.I,
+  KeyboardInput.B, KeyboardInput.J, KeyboardInput.K, KeyboardInput.COMMA,
+  KeyboardInput.D, KeyboardInput.C, KeyboardInput.L, KeyboardInput.M,
 ]);
 
 /**
@@ -494,9 +499,13 @@ exports.KeyboardInput = KeyboardInput;
 **/
 function LoaderBase() {}
 
+/**
+* Read a ROM to memory.
+**/
 LoaderBase.prototype.read_rom = function() {
   throw new Error('Method not implemented.');
 }
+
 
 /**
 * Returns a new HTTPLoader instance.
@@ -555,7 +564,8 @@ exports.HTTPLoader = HTTPLoader;
   var loader = new loader.HTTPLoader();
   var cpu = new cpu.CPU(mm, display, input, loader);
 
-  cpu.initialize();
+  var current_rom = window.location.hash.substring(1);
+  cpu.initialize(current_rom);
 
 })();
 

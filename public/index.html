@@ -1,31 +1,14 @@
 <!doctype=html>
 <html>
-<head><head>
-<body>
-  <h1>Chip-8 Player</h1>
-  <h4>List of Games</h4>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/chip8.css">
+<head>
+<body link="#C0C0C0" vlink="#808080" alink="#FF0000">
+  <h1>Chip-8 Arcade Games</h1>
   <div id="list">
   </div>
-  <script>
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/list');
-    xhr.responseType = 'json';
-    xhr.send();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        var roms = xhr.response;
-        var list = document.getElementById('list');
-
-        roms.forEach(function(rom) {
-          var div = document.createElement('div');
-          var anchor = document.createElement('a');
-          anchor.href = 'play.html#' + rom;
-          anchor.innerHTML = rom;
-          div.appendChild(anchor);
-          list.appendChild(div);
-        })
-      }
-    }
-  </script>
+  <script src="js/chip8.js"></script>
+  <script src="js/index.js"></script>
 </body>
 </html>
