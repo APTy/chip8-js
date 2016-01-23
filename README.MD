@@ -72,23 +72,21 @@ Okay, so the **PC** will increment from one instruction to the next, but how doe
 These variables grant us a lot of power in maneuvering through user space and creating almost any kind of program. (FYI: many of these concepts I've mentioned are what makes a programming language [Turing Complete](https://en.wikipedia.org/wiki/Turing_completeness))
 
 
-### File Structure
+### Architecture
 
-**main.js** - Responsible for initializing memory, display, clock, and input modules. It also loads a ROM (Read-Only Memory, another name for the games we load into CHIP-8) into memory and starts the CPU's fetch-decode-execute cycle.
+[**CPU**](./src/cpu.js) - Initializes the starting state for its owned objects and starts of the **fetch-decode-execute** loop at a specific `clock_frequency`.
 
-**memory.js** - Instantiates data structures for memory management, pointers, and constants. Many variables here are made available in the global namespace for ease of use in related modules. The [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) used is a JavaScript array that enforces a certain type (in this case, unsigned 8-bit integer), which we can safely do in cases where we know we will only need to store 8-bit numbers.
+[**MemoryManager**](./src/memory.js) - Provides an interface to main memory access, registers, pointers, the Display, and timers.
 
-**opcodes.js** - Maps behavior for every opcode. These functions execute the commands and cause the program to run.
+[**Instruction**](./src/decoder.js) - Provides a simple API for accessing data from two-byte CHIP-8 instructions through properties like `.x`, `.y`, and `.nnn`.
 
-**display.js** - Handles the clearing and painting to the canvas.
+[**Executor**](./src/executor.js) - Executes instructions according to the CHIP-8 opcode specification.
 
-**input.js** - Maps keyboard input and events to the CHIP-8 CPU.
+[**Display**](./src/display.js) - Handles the HTML5 canvas element for rendering and paints display data from the MemoryManager to the screen.
 
-**clock.js** - Updates timer registers periodically renders the display.
+[**KeyboardInput**](./src/input.js) - Handles keyboard input and keyboard await events.
 
-**fonts.js** - Stores the basic fontset.
-
-**http.js** - Streams binary ROM data from the server.
+[**HTTPLoader**](./src/loader.js) - Implements the `Loader` interface to get a ROM as an `arraybuffer` from the connected server. Exposes a `read_rom()` method that the CPU uses to load the game into memory.
 
 
 ### Start It Up
@@ -99,7 +97,7 @@ Here's how to get the project up and running in a few lines:
     $ npm install
     $ npm start
 
-That should install all the dependencies and start up a server that you can connect to [locally](http://localhost:3000)!
+That should install all the dependencies and start up a server that you can connect to [localhost:3000](http://localhost:3000)!
 
 ## Road Map
 

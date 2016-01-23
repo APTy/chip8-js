@@ -1,39 +1,70 @@
-var debug = require('./debug');
-
-const A = 65;
-const W = 87;
-const S = 83;
-const D = 68;
-
-const J = 74;
-const I = 73;
-const K = 75;
-const L = 76;
-
-const Z = 90
-const X = 88
-const C = 67
-const V = 86
-
-const B = 66
-const N = 78
-const M = 77
-const COMMA = 188
-
-var pressedKeys = {};
-const HEX_KEY_MAP = new Uint16Array([Z, W, X, A, S, D, C, V,
-                                     B, N, M, COMMA, I, K, J, L]);
-
-exports.init = function() {
-  debug.log('Initializing input listeners');
+/**
+* Returns a new KeyboardInput instance.
+* @constructor
+**/
+function KeyboardInput() {
+  this.AWAIT = 'await';
+  this.pressed_keys = {};
+  this.is_awaiting = false;
   window.onkeydown = function(e) {
-    pressedKeys[e.keyCode] = true;
-  }
+    this.pressed_keys[e.keyCode] = true;
+    window.dispatchEvent(new CustomEvent(this.AWAIT, {detail: e.keyCode}));
+  }.bind(this);
   window.onkeyup = function(e) {
-    pressedKeys[e.keyCode] = false;
-  }
+    this.pressed_keys[e.keyCode] = false;
+  }.bind(this);
+}
+
+KeyboardInput.A = 65;
+KeyboardInput.W = 87;
+KeyboardInput.S = 83;
+KeyboardInput.D = 68;
+
+KeyboardInput.J = 74;
+KeyboardInput.I = 73;
+KeyboardInput.K = 75;
+KeyboardInput.L = 76;
+
+KeyboardInput.Z = 90
+KeyboardInput.X = 88
+KeyboardInput.C = 67
+KeyboardInput.V = 86
+
+KeyboardInput.B = 66
+KeyboardInput.N = 78
+KeyboardInput.M = 77
+KeyboardInput.COMMA = 188
+
+KeyboardInput.HEX_KEY_MAP = new Uint16Array([
+  KeyboardInput.Z, KeyboardInput.W, KeyboardInput.X, KeyboardInput.A,
+  KeyboardInput.S, KeyboardInput.D, KeyboardInput.C, KeyboardInput.V,
+  KeyboardInput.B, KeyboardInput.N, KeyboardInput.M, KeyboardInput.COMMA,
+  KeyboardInput.I, KeyboardInput.K, KeyboardInput.J, KeyboardInput.L,
+]);
+
+/**
+* Returns whether a key is currently pressed.
+**/
+KeyboardInput.prototype.is_key_down = function(key) {
+  return this.pressed_keys[KeyboardInput.HEX_KEY_MAP[key]] === true;
 };
 
-exports.isKeyDown = function(key) {
-  return pressedKeys[HEX_KEY_MAP[key]] === true;
+/**
+* Start an asynchronous await for a keypress.
+**/
+KeyboardInput.prototype.await_start = function(register) {
+  this.await_register = register;
+  this.is_awaiting = true;
 };
+
+/**
+* End an asynchronous await for a keypress, and store its value to a register.
+**/
+KeyboardInput.prototype.await_end = function(e) {
+  window.removeEventListener(this.input.AWAIT);
+  this.mm.set_register(this.input.await_register, e.detail);
+  this.input.is_awaiting = false;
+};
+
+
+exports.KeyboardInput = KeyboardInput;

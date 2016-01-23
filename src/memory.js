@@ -1,70 +1,231 @@
-var debug = require('./debug');
+/**
+* Returns a new MemoryManager instance.
+* @constructor
+**/
+function MemoryManager() {
+  this.main      = new Uint8Array(MemoryManager.MEMORY_BYTE_SIZE);      // Main Memory
+  this.registers = new Uint8Array(MemoryManager.REGISTER_BYTE_SIZE);    // Register
+  this.stack     = new Array();                                         // Stack
+  this.addr_reg  = 0;                                                   // Address Register
+  this.addr_ptr  = 0;                                                   // Program Counter
+  this.stack_ptr = 0;                                                   // Stack Pointer
+  this.delay_tmr = 0;                                                   // Delay Timer
+  this.sound_tmr = 0;                                                   // Sound Timer
+  this.display   = new Uint8Array(MemoryManager.DISPLAY_WIDTH_BYTES * MemoryManager.DISPLAY_HEIGHT_BYTES);  // Display Area
+}
 
-/*  Local constants  */
-const MEMORY_BYTE_SIZE               = 0x1000;
-const RESERVED_MEMORY_BYTE_SIZE      = 0x200;
-const REGISTER_BYTE_SIZE             = 0x10;
-const STACK_BYTE_SIZE                = 0x10;
+MemoryManager.MEMORY_BYTE_SIZE               = 0x1000;
+MemoryManager.RESERVED_MEMORY_BYTE_SIZE      = 0x0200;
+MemoryManager.PROGRAM_ADDRESS_START          = 0x0200;
+MemoryManager.FONT_FIRST_ADDRESS_IN_MEMORY   = 0x0000;
+MemoryManager.REGISTER_BYTE_SIZE             = 0x10;
+MemoryManager.STACK_BYTE_SIZE                = 0x10;
+MemoryManager.FONT_BYTE_SIZE                 = 0x05;
+MemoryManager.DISPLAY_WIDTH_BYTES            = 0x40;
+MemoryManager.DISPLAY_HEIGHT_BYTES           = 0x20;
+MemoryManager.OP_CODE_BYTE_LENGTH            = 0x02;
 
-/*  Global constants  */
-global.FONT_FIRST_ADDRESS_IN_MEMORY  = 0x0000;
-global.FONT_BYTE_SIZE                = 0x5;
-global.PROGRAM_ADDRESS_START         = 0x200;
-global.DISPLAY_WIDTH_BYTES           = 0X40;
-global.DISPLAY_HEIGHT_BYTES          = 0X20;
-
-/*  Op Return Codes  */
-global.OP_SUCCESS                    = 0x00;
-global.OP_ERROR                      = 0x01;
-global.OP_SKIP_NEXT_INSTRUCTION      = 0x02;
-global.OP_ERROR_NOT_IMPLEMENTED      = 0x04;
-
-/*  Memory Allocation  */
-global.M       = new Uint8Array(MEMORY_BYTE_SIZE);      // Main Memory
-global.V       = new Uint8Array(REGISTER_BYTE_SIZE);    // Register
-global.S       = new Uint16Array(STACK_BYTE_SIZE);      // Stack
-global.I       = 0x0000;                                // Address Register
-global.PC      = 0x0000;                                // Program Counter
-global.SP      = 0x00;                                  // Stack Pointer
-global.DT      = 0x0000;                                // Delay Timer
-global.ST      = 0x0000;                                // Sound Timer
-global.display = new Uint8Array(DISPLAY_WIDTH_BYTES *
-                                DISPLAY_HEIGHT_BYTES);  // Display Area
-
-
-/*  Get ROM from server and load into memory  */
-global.loadROMIntoMemory = function(ROM, callback) {
-  var http = require('./http');
-
-  /*  Hit server for ROM data  */
-  debug.log('Getting ROM from server');
-  http.get('roms?name=' + ROM, function(rom) {
-
-    /*  Load the rom uint8array into memory  */
-    debug.log('Copying ROM to memory');
-    M.set(rom, PROGRAM_ADDRESS_START);
-
-    /*  Call the next function in the init sequence  */
-    callback(rom.length);
-
-  });
-};
-
-global.memInit = function() {
-  debug.log('Loading fonts into memory');
+/**
+* Load initial memory and set pointers to initial values for applications.
+**/
+MemoryManager.prototype.initialize = function() {
   var fonts = require('./fonts');
-  fonts.forEach(function(font, index) {
-    M.set(font, FONT_FIRST_ADDRESS_IN_MEMORY + font.length * index);
-  });
+  this.load_fonts(fonts);
+  this.addr_reg = MemoryManager.PROGRAM_ADDRESS_START;
+  this.addr_ptr = MemoryManager.PROGRAM_ADDRESS_START;
 };
 
-/*  Add one byte of information (8 pixels) onto the display */
-global.addSpriteToDisplay = function(sprite, x, y) {
+
+///////////////////////////////////////////////////////////////////////////////
+//////                       Main Memory Management                      //////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+* Loads an arraybuffer into memory at the memory pointer's location.
+* @arg {Uint8Array} buffer - data to load
+**/
+MemoryManager.prototype.load_into_memory = function(buffer) {
+  this.main.set(buffer, this.addr_reg);
+  this.addr_reg += buffer.length;
+};
+
+/**
+* Loads preset fonts into memory.
+* @arg {Uint8Array} fonts - font data to load
+**/
+MemoryManager.prototype.load_fonts = function(fonts) {
+  this.addr_reg = MemoryManager.FONT_FIRST_ADDRESS_IN_MEMORY;
+  this.load_into_memory(fonts);
+}
+
+/*
+* Add one byte of information (8 pixels) onto the display
+**/
+MemoryManager.prototype.draw_sprite_from_addr_reg = function(x, y, n) {
   var clearedPixel = false;
-  for (var i = 7; i >= 0; i--) {
-    display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] ^= sprite >> i & 1;
-    if (display[x + y * DISPLAY_WIDTH_BYTES + 7 - i] === 0 && (sprite >> i & 1) === 1)
-      clearedPixel = true; // Check if pixel was cleared
+  var sprite = this.read_at_addr_reg(n);
+  x = this.registers[x];
+  y = this.registers[y];
+  for (var j = 0; j < n; j++) {
+    for (var i = 7; i >= 0; i--) {
+      this.display[x + (y + j) * MemoryManager.DISPLAY_WIDTH_BYTES + 7 - i] ^= sprite[j] >> i & 1;
+      if (this.display[x + (y + j) * MemoryManager.DISPLAY_WIDTH_BYTES + 7 - i] === 0 && (sprite[j] >> i & 1) === 1)
+        clearedPixel = true; // Check if pixel was cleared
+    }
   }
   return clearedPixel // Return whether a pixel was cleared during the op
 };
+
+/**
+* Read in the next instruction (2 bytes of data).
+**/
+MemoryManager.prototype.read = function() {
+  var instruction = (this.main[this.addr_ptr] << 8) + this.main[this.addr_ptr + 1];
+  this.addr_ptr += MemoryManager.OP_CODE_BYTE_LENGTH;
+  return instruction;
+};
+
+/**
+* Skip in the next instruction (2 bytes of data).
+**/
+MemoryManager.prototype.skip = function() {
+  this.read();
+};
+
+/**
+* Jump to an address.
+**/
+MemoryManager.prototype.jump_to = function(addr) {
+  this.addr_ptr = addr;
+};
+
+/**
+* Jump to an address and save the current execution address to the call stack.
+**/
+MemoryManager.prototype.fn_call = function(addr) {
+  this.stack.push(this.addr_ptr);
+  this.jump_to(addr);
+};
+
+/**
+* Return to the address at the top of the call stack.
+**/
+MemoryManager.prototype.fn_return = function(addr) {
+  this.addr_ptr = this.stack.pop();
+};
+
+/**
+* Iterate over the entire display memory store.
+**/
+MemoryManager.prototype.for_each_display_pixel = function(callback) {
+  for(var i = 0; i < this.display.length; i++) {
+    callback(this.display[i], i);
+  }
+};
+
+/**
+* Clear the values of the entire display memory store.
+**/
+MemoryManager.prototype.clear_display = function() {
+  for(var i = 0; i < this.display.length; i++) {
+    this.display[i] = 0;
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//////                        Register Management                        //////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+* Get the value of a standard register.
+**/
+MemoryManager.prototype.get_register = function(register) {
+  return this.registers[register];
+};
+
+/**
+* Set the value of a standard register.
+**/
+MemoryManager.prototype.set_register = function(register, val) {
+  this.registers[register] = val;
+};
+
+/**
+* Read `bytes` number of bytes from the memory at the address register I.
+**/
+MemoryManager.prototype.read_at_addr_reg = function(bytes) {
+  var buf = new Uint8Array(bytes);
+  for (var i = 0; i < bytes; i++) {
+    buf[i] = this.main[this.addr_reg + i];
+  }
+  return buf;
+};
+
+/**
+* Write a buffer to the memory at address register I.
+**/
+MemoryManager.prototype.write_at_addr_reg = function(buffer) {
+  this.main.set(buffer, this.addr_reg);
+};
+
+/**
+* Set the address stored in address register I.
+**/
+MemoryManager.prototype.set_addr_reg = function(val) {
+  this.addr_reg = val;
+};
+
+/**
+* Get the address stored in address register I.
+**/
+MemoryManager.prototype.get_addr_reg = function() {
+  return this.addr_reg;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//////                              Timers                               //////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+* Get the current value of the delay timer.
+**/
+MemoryManager.prototype.get_delay_tmr = function() {
+  return this.delay_tmr;
+};
+
+/**
+* Set the current value of the delay timer.
+**/
+MemoryManager.prototype.set_delay_tmr = function(val) {
+  this.delay_tmr = val;
+};
+
+/**
+* Get the current value of the sound timer.
+**/
+MemoryManager.prototype.get_sound_tmr = function() {
+  return this.sound_tmr;
+};
+
+/**
+* Set the current value of the sound timer.
+**/
+MemoryManager.prototype.set_sound_tmr = function(val) {
+  this.sound_tmr = val;
+};
+
+MemoryManager.prototype.reduce_delay_timer = function() {
+  if (this.delay_tmr > 0) {
+    this.delay_tmr -= 1;
+  }
+};
+
+MemoryManager.prototype.reduce_sound_timer = function() {
+  if (this.sound_tmr > 0) {
+    // process.stdout.write(SOUND_ALERT_CODE);
+    this.sound_tmr -= 1;
+  }
+};
+
+
+exports.MemoryManager = MemoryManager;
