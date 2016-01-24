@@ -6,15 +6,13 @@
 * @arg {Display} display - the display on which to paint when ready
 * @arg {Number} clock_frequency - the number of CPU cycles per second
 **/
-function Clock(mm, display, clock_frequency) {
-  this.mm = mm;
-  this.display = display;
+function Clock(clock_frequency) {
   this.frequency = clock_frequency;
   this.last_tick = Clock.current_time();
+  this.users = [];
 }
 
 Clock.TIMER_HERTZ_FREQUENCY = 60;       // Allowed ticks per second
-Clock.SOUND_ALERT_CODE      = '\007';   // 'Beep' sound
 
 /**
 * Gets the current time.
@@ -24,13 +22,21 @@ Clock.current_time = function() {
 };
 
 /**
-* Refresh the display and timers at the current tick/frame rate.
+* Add an object/user that depends on the clock.
+* @arg {Object} user - an object that implements an `on_tick` method.
+**/
+Clock.prototype.add_user = function(user) {
+  this.users.push(user);
+};
+
+/**
+* Run the `on_tick` method of all clock users.
 **/
 Clock.prototype.tick = function() {
   if (Clock.current_time() - this.last_tick > (this.frequency / Clock.TIMER_HERTZ_FREQUENCY)) {
-    this.display.paint();
-    this.mm.reduce_delay_timer();
-    this.mm.reduce_sound_timer();
+    this.users.forEach(function(user) {
+      user.on_tick();
+    });
     this.last_tick = Clock.current_time();
   }
 };
@@ -54,7 +60,7 @@ function CPU(mm, display, input, loader, clock_frequency) {
   this.loader = loader;
   this.display = display;
   this.decoder = decoder;
-  this.clock = new clock.Clock(mm, display, clock_frequency);
+  this.clock = new clock.Clock(clock_frequency);
   this.executor = new executor.Executor(mm, display, input);
 }
 
@@ -67,6 +73,10 @@ CPU.DEFAULT_CLOCK_FREQUENCY = 1000; // Cycles per second
 CPU.prototype.initialize = function(rom) {
   // Set the current ROM name
   this.current_rom = rom;
+
+  // Add the MemoryManager and Display as dependents of the Clock
+  this.clock.add_user(this.mm);
+  this.clock.add_user(this.display);
 
   // Initialize the CPU's memory
   this.mm.initialize();
@@ -216,6 +226,13 @@ Display.prototype.paint = function() {
       this.screen.fillRect(x, y, this.width_ratio, this.height_ratio);
     }
   }.bind(this));
+}
+
+/**
+* Method to be run when the clock schedules a tick.
+**/
+Display.prototype.on_tick = function() {
+  this.paint();
 }
 
 
@@ -630,7 +647,7 @@ function MemoryManager() {
   this.registers = new Uint8Array(MemoryManager.REGISTER_BYTE_SIZE);    // Register
   this.stack     = new Array();                                         // Stack
   this.addr_reg  = 0;                                                   // Address Register
-  this.instr_ptr  = 0;                                                   // Program Counter
+  this.instr_ptr = 0;                                                   // Program Counter
   this.stack_ptr = 0;                                                   // Stack Pointer
   this.delay_tmr = 0;                                                   // Delay Timer
   this.sound_tmr = 0;                                                   // Sound Timer
@@ -851,22 +868,16 @@ MemoryManager.prototype.set_sound_tmr = function(val) {
 };
 
 /**
-* Convenience function to decrement the delay timer.
+* Method to be run when the clock schedules a tick.
 **/
-MemoryManager.prototype.reduce_delay_timer = function() {
+MemoryManager.prototype.on_tick = function() {
   if (this.delay_tmr > 0) {
     this.delay_tmr -= 1;
   }
-};
-
-/**
-* Convenience function to decrement the sound timer.
-**/
-MemoryManager.prototype.reduce_sound_timer = function() {
   if (this.sound_tmr > 0) {
     this.sound_tmr -= 1;
   }
-};
+}
 
 
 exports.MemoryManager = MemoryManager;

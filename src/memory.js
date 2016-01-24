@@ -7,7 +7,7 @@ function MemoryManager() {
   this.registers = new Uint8Array(MemoryManager.REGISTER_BYTE_SIZE);    // Register
   this.stack     = new Array();                                         // Stack
   this.addr_reg  = 0;                                                   // Address Register
-  this.instr_ptr  = 0;                                                   // Program Counter
+  this.instr_ptr = 0;                                                   // Program Counter
   this.stack_ptr = 0;                                                   // Stack Pointer
   this.delay_tmr = 0;                                                   // Delay Timer
   this.sound_tmr = 0;                                                   // Sound Timer
@@ -228,22 +228,16 @@ MemoryManager.prototype.set_sound_tmr = function(val) {
 };
 
 /**
-* Convenience function to decrement the delay timer.
+* Method to be run when the clock schedules a tick.
 **/
-MemoryManager.prototype.reduce_delay_timer = function() {
+MemoryManager.prototype.on_tick = function() {
   if (this.delay_tmr > 0) {
     this.delay_tmr -= 1;
   }
-};
-
-/**
-* Convenience function to decrement the sound timer.
-**/
-MemoryManager.prototype.reduce_sound_timer = function() {
   if (this.sound_tmr > 0) {
     this.sound_tmr -= 1;
   }
-};
+}
 
 
 exports.MemoryManager = MemoryManager;

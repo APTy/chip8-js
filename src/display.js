@@ -52,5 +52,12 @@ Display.prototype.paint = function() {
   }.bind(this));
 }
 
+/**
+* Method to be run when the clock schedules a tick.
+**/
+Display.prototype.on_tick = function() {
+  this.paint();
+}
+
 
 exports.Display = Display;

@@ -13,7 +13,7 @@ function CPU(mm, display, input, loader, clock_frequency) {
   this.loader = loader;
   this.display = display;
   this.decoder = decoder;
-  this.clock = new clock.Clock(mm, display, clock_frequency);
+  this.clock = new clock.Clock(clock_frequency);
   this.executor = new executor.Executor(mm, display, input);
 }
 
@@ -26,6 +26,10 @@ CPU.DEFAULT_CLOCK_FREQUENCY = 1000; // Cycles per second
 CPU.prototype.initialize = function(rom) {
   // Set the current ROM name
   this.current_rom = rom;
+
+  // Add the MemoryManager and Display as dependents of the Clock
+  this.clock.add_user(this.mm);
+  this.clock.add_user(this.display);
 
   // Initialize the CPU's memory
   this.mm.initialize();
