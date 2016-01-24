@@ -78,11 +78,13 @@ These variables grant us a lot of power in maneuvering through user space and cr
 
 [**MemoryManager**](./src/memory.js) - Provides an interface to main memory access, registers, pointers, the Display, and timers.
 
+[**Display**](./src/display.js) - Handles the HTML5 canvas element for rendering and paints display data from the MemoryManager to the screen.
+
+[**Clock**](./src/clock.js) - Maintains the internal CPU timing system and schedules events.
+
 [**Instruction**](./src/decoder.js) - Provides a simple API for accessing data from two-byte CHIP-8 instructions through properties like `.x`, `.y`, and `.nnn`.
 
 [**Executor**](./src/executor.js) - Executes instructions according to the CHIP-8 opcode specification.
-
-[**Display**](./src/display.js) - Handles the HTML5 canvas element for rendering and paints display data from the MemoryManager to the screen.
 
 [**KeyboardInput**](./src/input.js) - Handles keyboard input and keyboard await events.
 
@@ -99,9 +101,20 @@ Here's how to get the project up and running in a few lines:
 
 That should install all the dependencies and start up a server that you can connect to [localhost:3000](http://localhost:3000)!
 
-## Road Map
 
-- Finish implementation of all opcodes
-- More information on input and display
-- Something about the clock/timers
-- Notes about Array Buffers and optimization in JavaScript
+### Notes and Road Map
+
+#### Flicker
+
+The screen flickers primarily due to how different ROMs make use of the CHIP-8 API. Instead of calculating the correct position of an object and its shape, and providing the display engine with a proper XOR-able sprite, many games will simply clear that display area, and repaint the same sprite again at a new location. This is evident in games with stationary objects that do not exhibit a flickering behavior.
+
+With this knowledge in mind, we can make an optimization to the display whereby it waits to clear a pixel until it is sure that the pixel should be cleared; that is, if any pixel should be turned off, but will be turned back on within the next frame (or s0), we should leave it on. This will smooth any animation roughness, but will add overhead to the rendering process and could also have unpredictable in-game effects.
+
+#### Slow Input Response
+
+It's sometimes noted that game controls are slow or don't register from time to time. This is because games that want to make use of keyboard input must manually check if an input key is pressed or not. So, if a user press a key, but the game is busy running some other logic, it may not receive that input. We could improve the user experience by adding "sticky" keys, and allow user input to linger in memory even after they've released the key. Care should be taken to enforce input buffering and order, so that we don't materially alter the behavior of game logic.
+
+#### Miscellaneous
+
+- Test/debug with more ROMs
+- Responsive canvas display size
