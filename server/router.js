@@ -2,35 +2,15 @@ var fs = require('fs');
 var router = require('express').Router();
 var rom_info = require('./rom_info');
 
-/******************************************************************************
-                                Initialization
-*******************************************************************************/
-
 const ROM_DIRECTORY = './ROM/';
 const CH8_EXTENSION = '.ch8';
-var rom_list = null;
-
-// Get current list of roms
-fs.readdir(ROM_DIRECTORY, function(err, data) {
-  if (err) throw new Error('Couldn\'t get list of roms');
-  rom_list = data.map(function(rom) {
-    // Return the rom without its extension
-    return rom.split('.')[0];
-  });
-});
-
-
-/******************************************************************************
-                                  Routes
-*******************************************************************************/
 
 /**
 * Reponds to a request for a list of all ROMs.
 **/
 router.route('/roms')
 .get(function(req, res) {
-  if (rom_list === null) return res.send(404).send();
-  return res.status(200).send(rom_list);
+  return res.status(200).send(rom_info);
 });
 
 /**

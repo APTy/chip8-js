@@ -37,12 +37,11 @@ module.exports = {
     }
   },
   'Tron': {
-    description: 'Face off against your best friend or nemesis. Your vehicle leaves a dangerous trail behind it. Trap or corner your opponent to secure victory - but don\t hit your own tail!',
+    description: 'Face off against your best friend or nemesis. Your vehicle leaves a dangerous trail behind it. Trap or corner your opponent to secure victory - but don\'t hit your own tail!',
     controls: {
       ASDW: 'Player 1 left/down/right/up',
       JKLI: 'Player 2 left/down/right/up',
-      ',': 'Set up a map with a bounding box',
-      M: 'Set up a map without a bounding box',
+      ',': 'Set up a new game',
       Z: 'Start game'
     }
   }

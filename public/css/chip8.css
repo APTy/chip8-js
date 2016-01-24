@@ -9,3 +9,13 @@ canvas {
   padding: 20px;
   border: solid 4px #888;
 }
+
+div {
+  margin: 30px;
+}
+
+p {
+  margin: auto;
+  font-size: 14px;
+  margin: 2px;
+}
