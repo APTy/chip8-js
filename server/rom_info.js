@@ -33,7 +33,7 @@ module.exports = {
     controls: {
       S: 'Move spaceship left',
       H: 'Move spaceship right',
-      SPACEBAR: 'Fire photon torpedos!'
+      V: 'Fire photon torpedos!'
     }
   },
   'Tron': {

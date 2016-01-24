@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify src/*.js -o public/bundle.js",
+    "build": "browserify src/*.js -o public/js/bundle.js",
     "start": "node server.js"
   },
   "repository": {

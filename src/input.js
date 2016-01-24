@@ -31,12 +31,12 @@ KeyboardInput.C = 67;
 KeyboardInput.Z = 90;
 KeyboardInput.X = 88;
 KeyboardInput.B = 66;
-KeyboardInput.SPACE = 32;
+KeyboardInput.V = 86;
 KeyboardInput.COMMA = 188;
 
 KeyboardInput.HEX_KEY_MAP = new Uint16Array([
   KeyboardInput.Z, KeyboardInput.W, KeyboardInput.X, KeyboardInput.A,
-  KeyboardInput.S, KeyboardInput.SPACE, KeyboardInput.H, KeyboardInput.I,
+  KeyboardInput.S, KeyboardInput.V, KeyboardInput.H, KeyboardInput.I,
   KeyboardInput.B, KeyboardInput.J, KeyboardInput.K, KeyboardInput.COMMA,
   KeyboardInput.D, KeyboardInput.C, KeyboardInput.L, KeyboardInput.M,
 ]);
