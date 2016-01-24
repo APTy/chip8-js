@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   // Get a list of available ROMs
-  $.get('/list', function(roms) {
+  $.get('/roms', function(roms) {
     var list = document.getElementById('list');
 
     roms.forEach(function(rom) {
@@ -13,5 +13,5 @@ document.addEventListener('DOMContentLoaded', function() {
       list.appendChild(div);
     });
   });
-  
+
 });

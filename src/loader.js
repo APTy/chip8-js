@@ -45,7 +45,7 @@ HTTPLoader.prototype.get = function(path, callback) {
 **/
 HTTPLoader.prototype.read_rom = function(rom_name, callback) {
   /*  Hit server for ROM data  */
-  this.get('roms?name=' + rom_name, function(rom_buffer) {
+  this.get('roms/' + rom_name + '/bin', function(rom_buffer) {
     /*  Call the next function in the init sequence  */
     callback(rom_buffer);
   });
