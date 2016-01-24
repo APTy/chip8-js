@@ -7,7 +7,7 @@ function MemoryManager() {
   this.registers = new Uint8Array(MemoryManager.REGISTER_BYTE_SIZE);    // Register
   this.stack     = new Array();                                         // Stack
   this.addr_reg  = 0;                                                   // Address Register
-  this.addr_ptr  = 0;                                                   // Program Counter
+  this.instr_ptr  = 0;                                                   // Program Counter
   this.stack_ptr = 0;                                                   // Stack Pointer
   this.delay_tmr = 0;                                                   // Delay Timer
   this.sound_tmr = 0;                                                   // Sound Timer
@@ -32,7 +32,7 @@ MemoryManager.prototype.initialize = function() {
   var fonts = require('./fonts');
   this.load_fonts(fonts);
   this.addr_reg = MemoryManager.PROGRAM_ADDRESS_START;
-  this.addr_ptr = MemoryManager.PROGRAM_ADDRESS_START;
+  this.instr_ptr = MemoryManager.PROGRAM_ADDRESS_START;
 };
 
 
@@ -58,8 +58,21 @@ MemoryManager.prototype.load_fonts = function(fonts) {
   this.load_into_memory(fonts);
 }
 
-/*
-* Add one byte of information (8 pixels) onto the display
+/**
+* Copy `n` bytes from memory at the address register to location `x`, `y`.
+* @arg {Number} x - the x-coordinate at which to draw the sprite
+* @arg {Number} x - the y-coordinate at which to draw the sprite
+* @arg {Number} n - the number of bytes to be drawn
+*
+* Each byte contains 8 bits of information, which can be used to draw 8 pixels
+* (only one bit of information is needed to draw in a black/white system).
+*
+*     e.g: 0xE7 == 0b11100111
+*
+* This number will draw three light pixels, followed by two dark pixels,
+* followed by three light pixels (eight total), displayed horizontally. This
+* is the storage/display system for fonts as well as user-defined sprites.
+*
 **/
 MemoryManager.prototype.draw_sprite_from_addr_reg = function(x, y, n) {
   var clearedPixel = false;
@@ -77,11 +90,11 @@ MemoryManager.prototype.draw_sprite_from_addr_reg = function(x, y, n) {
 };
 
 /**
-* Read in the next instruction (2 bytes of data).
+* Read in the next instruction (2 bytes of data) and increment the instruction pointer.
 **/
 MemoryManager.prototype.read = function() {
-  var instruction = (this.main[this.addr_ptr] << 8) + this.main[this.addr_ptr + 1];
-  this.addr_ptr += MemoryManager.OP_CODE_BYTE_LENGTH;
+  var instruction = (this.main[this.instr_ptr] << 8) + this.main[this.instr_ptr + 1];
+  this.instr_ptr += MemoryManager.OP_CODE_BYTE_LENGTH;
   return instruction;
 };
 
@@ -96,14 +109,14 @@ MemoryManager.prototype.skip = function() {
 * Jump to an address.
 **/
 MemoryManager.prototype.jump_to = function(addr) {
-  this.addr_ptr = addr;
+  this.instr_ptr = addr;
 };
 
 /**
 * Jump to an address and save the current execution address to the call stack.
 **/
 MemoryManager.prototype.fn_call = function(addr) {
-  this.stack.push(this.addr_ptr);
+  this.stack.push(this.instr_ptr);
   this.jump_to(addr);
 };
 
@@ -111,7 +124,7 @@ MemoryManager.prototype.fn_call = function(addr) {
 * Return to the address at the top of the call stack.
 **/
 MemoryManager.prototype.fn_return = function(addr) {
-  this.addr_ptr = this.stack.pop();
+  this.instr_ptr = this.stack.pop();
 };
 
 /**
@@ -214,15 +227,20 @@ MemoryManager.prototype.set_sound_tmr = function(val) {
   this.sound_tmr = val;
 };
 
+/**
+* Convenience function to decrement the delay timer.
+**/
 MemoryManager.prototype.reduce_delay_timer = function() {
   if (this.delay_tmr > 0) {
     this.delay_tmr -= 1;
   }
 };
 
+/**
+* Convenience function to decrement the sound timer.
+**/
 MemoryManager.prototype.reduce_sound_timer = function() {
   if (this.sound_tmr > 0) {
-    // process.stdout.write(SOUND_ALERT_CODE);
     this.sound_tmr -= 1;
   }
 };
