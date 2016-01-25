@@ -1,7 +1,7 @@
 /**
 * Returns a new Display instance.
 * @constructor
-* @arg {MemoryManager} mm - an object with access to delay timer and sound timer registers.
+* @arg {MemoryManager} mm - an object with access the display's memory.
 **/
 function Display(mm) {
   var memory                = require('./memory');

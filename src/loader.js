@@ -11,7 +11,6 @@ LoaderBase.prototype.read_rom = function() {
   throw new Error('Method not implemented.');
 }
 
-
 /**
 * Returns a new HTTPLoader instance.
 * @constructor

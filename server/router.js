@@ -2,7 +2,7 @@ var fs = require('fs');
 var router = require('express').Router();
 var rom_info = require('./rom_info');
 
-const ROM_DIRECTORY = './ROM/';
+const ROM_DIRECTORY = './server/roms/';
 const CH8_EXTENSION = '.ch8';
 
 /**

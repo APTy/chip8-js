@@ -2,8 +2,6 @@
 /**
 * Returns a new Clock instance.
 * @constructor
-* @arg {MemoryManager} mm - an object with access to delay timer and sound timer registers.
-* @arg {Display} display - the display on which to paint when ready
 * @arg {Number} clock_frequency - the number of CPU cycles per second
 **/
 function Clock(clock_frequency) {
@@ -12,7 +10,7 @@ function Clock(clock_frequency) {
   this.users = [];
 }
 
-Clock.TIMER_HERTZ_FREQUENCY = 60;       // Allowed ticks per second
+Clock.TIMER_HERTZ_FREQUENCY = 60; // Allowed ticks per second
 
 /**
 * Gets the current time.
@@ -48,6 +46,10 @@ exports.Clock = Clock;
 /**
 * Returns a new CPU instance.
 * @constructor
+* @arg {MemoryManager} mm - the CPU's memory manager.
+* @arg {KeyboardInput} input - the CPU's input handler.
+* @arg {Loader} loader - the CPU's ROM loader.
+* @arg {Number} clock_frequency - the number of CPU cycles per second.
 **/
 function CPU(mm, display, input, loader, clock_frequency) {
   var clock = require('./clock');
@@ -177,7 +179,7 @@ exports.decode = function(instr) {
 /**
 * Returns a new Display instance.
 * @constructor
-* @arg {MemoryManager} mm - an object with access to delay timer and sound timer registers.
+* @arg {MemoryManager} mm - an object with access the display's memory.
 **/
 function Display(mm) {
   var memory                = require('./memory');
@@ -355,15 +357,21 @@ Executor.prototype.OP_8 = function(inst) {
       break;
     case 0x6:   // Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
       var vx = this.mm.get_register(inst.x);
-      this.mm.set_register(0xF, vx & 0x01);
+      this.mm.set_register(0xF, vx & 1);
       this.mm.set_register(inst.x, vx >> 1 & 0xFF);
       break;
     case 0x7:   // Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-
+      var vx = this.mm.get_register(inst.x);
+      var vy = this.mm.get_register(inst.y);
+      this.mm.set_register(inst.x, (vy - vx) & 0xFF);
+      if (vy - vx < 0)
+        this.mm.set_register(0xF, 0);
+      else
+        this.mm.set_register(0xF, 1);
       break;
     case 0xF:  // Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.
       var vx = this.mm.get_register(inst.x);
-      this.mm.set_register(0xF, vx >> 7 & 0x01);
+      this.mm.set_register(0xF, vx >> 7 & 1);
       this.mm.set_register(inst.x, vx << 1 & 0xFF);
       break;
     default:
@@ -390,8 +398,7 @@ Executor.prototype.OP_B = function(inst) {
 
 // CXNN: Sets VX to the result of a random number 'and' NN.
 Executor.prototype.OP_C = function(inst) {
-  // TODO: implement my own random function
-  this.mm.set_register(inst.x, (Math.random() * 0x100 >> 0) & (inst.nn));
+  this.mm.set_register(inst.x, (Math.random() * 0x100) & inst.nn);
 }
 
 // DXYN: Draw XOR pixels onto screen from index register I
@@ -596,7 +603,6 @@ LoaderBase.prototype.read_rom = function() {
   throw new Error('Method not implemented.');
 }
 
-
 /**
 * Returns a new HTTPLoader instance.
 * @constructor
@@ -704,7 +710,6 @@ MemoryManager.prototype.initialize = function() {
 **/
 MemoryManager.prototype.load_into_memory = function(buffer) {
   this.main.set(buffer, this.addr_reg);
-  this.addr_reg += buffer.length;
 };
 
 /**

@@ -1,6 +1,10 @@
 /**
 * Returns a new CPU instance.
 * @constructor
+* @arg {MemoryManager} mm - the CPU's memory manager.
+* @arg {KeyboardInput} input - the CPU's input handler.
+* @arg {Loader} loader - the CPU's ROM loader.
+* @arg {Number} clock_frequency - the number of CPU cycles per second.
 **/
 function CPU(mm, display, input, loader, clock_frequency) {
   var clock = require('./clock');
