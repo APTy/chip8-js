@@ -1,36 +1,45 @@
 ## CHIP-8.js
 
-### Introduction
+View a live demo [**here**](http://chip8-js.herokuapp.com/).
 
-The goal of this project is to demystify a lot of what goes on "under the hood" of a simple computer system using an understandable and easy-to-learn language like JavaScript.
+### Introduction
 
 From [Wikipedia](https://en.wikipedia.org/wiki/CHIP-8):
 >CHIP-8 is an interpreted programming language [...] run on a CHIP-8 virtual machine. It was made to allow video games to be more easily programmed for said computers.
 
-This project is a JavaScript implementation of an emulator for CHIP-8's virtual machine. It was created as an educational tool to better understand:
-  1. The CPU's fetch-decode-execute instruction cycle
-  2. Flow control and memory management
-  3. Lower-level design principles
+This project breaks down how a simple computer system works. Using JavaScript, we emulate the behavior of the popular CHIP-8 game system. The implementation needs to meet the following requirements:
+  1. Byte-code interpretation
+  1. Memory management
+  1. Flow control
+  1. Rendering
+  1. User input
+  1. Allow anyone to play fun games!
 
 ![pong](docs/breakout.png)
 
 
 ### The CPU
 
-Before high-level scripting languages like JavaScript were invented (and even before their modern-day compiled counterparts like C and Java), programmers needed to use a language that machines could understand. One such language that many computers today understand is called [Assembly](https://en.wikipedia.org/wiki/Assembly_language). Assembly code provides a computer with a set of instructions (simple commands) to act on. The Central Processing Unit (CPU) is then in charge of making sense of (decoding) and carrying out (executing) the instructions. The CPU makes use of a few circuits (which we *emulate* with simple variables) in order to accomplish this. So what do these instructions do?
+A computer needs simple instructions in order to function. Instructions in the CHIP-8 architecture are two (2) bytes each - pretty small! Instructions are compact and easy for a computer to understand, but not so much for humans.
 
-### Op Codes / Instructions
+Languages like C/C++ and Java exist to make programming more user-friendly, but at the end of the day, that code compiles down into a set of simple instructions that a Central Processing Unit (CPU) can understand. The CPU is in charge of making sense of (decoding) and carrying out (executing) the instructions.
 
-Before getting too deep into CPUs, let's get Op Codes out of the way (so that you aren't confused when you first see them). An Op Code is generally a type of command that you are issuing to the CPU. An Op Code is usually followed by a value/values that tells the Op Code how to behave. An Op Code plus those values is what comprises an `instruction`. Every CHIP-8 instruction is two bytes (16 bits).
+The CPU makes use of a few circuits (which we *emulate* with simple variables) in order to accomplish this task. So what do these instructions look like?
 
-Background: one byte is generally stored as two hexadecimal (base-16) digits (prefixed by `0x` for clarity), as opposed to eight binary (base-2) digits. As an example, all of the following are equivalent representations of the number `twelve`:
+### Opcodes / Instructions
+
+Some background with opcodes in case you're unfamiliar with the world of bits and bytes:
+
+An `opcode` refers to a type of command being issued to the CPU. An opcode is usually followed by value(s) that informs the CPU how to behave. An opcode plus those values is what comprises an `instruction`. As mentioned before, every CHIP-8 instruction is 2 bytes (16 bits).
+
+More background: one byte can be stored as two hexadecimal (base-16) digits (prefixed by `0x` when written in code), as opposed to eight binary (base-2) digits. As an example, all of the following are equivalent representations of the number `twelve`:
 
 - `12` - Base-10 decimal (what you're used to seeing)
 - `0x0C` - Base-16 hexadecimal (how we read cpu  instructions)
 - `00001100` - Base-2 binary (how data is actually stored)
 - `XII` - Roman Numerals (for good measure)
 
-Hexadecimal is basically the closest we can get to how data is stored in the computer, while still being somewhat readable.
+Hexadecimal is basically the closest we can get to how data is stored in the computer, while still being readable.
 
 ##### Examples
 
@@ -45,15 +54,15 @@ Hexadecimal is basically the closest we can get to how data is stored in the com
 **FX15** - Sets the delay timer to VX, e.g:
   - `F415` - Set the delay timer to the value stored in register 4.
 
-There may be some new concepts in these examples, such as registers, but I include them for reference later. (A register is a place where the CPU stores temporary information in-memory)
+(We'll get into registers in a moment - for now just think of them as variables where a CPU stores data)
 
 ### Flow Control
 
 A processor can only fetch one instruction at a time. But the power of a computer is not its ability to run instructions sequentially, but in its ability to run them dynamically according to custom rules. We can break out flow control generally into a few different ideas:
 
-1. **Go To** - jump from one instruction to another. Go To forms the basis for modern day loops like `for` and `while`. Basically, when you get to the end of some block of code, you "go to" the start, until some condition is met. Which means it is also related to:
-2. **Conditional Branching** - execute different instructions based on some criteria (usually comparing two values or subject to some user input). This forms the basis for `if-else` statements and breaking out of most loops.
-3. **Subroutines** - keep track of where the processor is/has executed routines, begin executing new routines, and then fall back to prior routines upon completion. If you ever nest `function` calls within functions calls, your computer needs to know where to go after it finishes each function block.
+1. **Go To** - Jump from one instruction to another. Go To forms the basis for modern day loops like `for` and `while`. Basically, when you get to the end of some block of code, you "go to" the start, until some condition is met. Which means it is also related to:
+2. **Conditional Branching** - Execute different instructions based on some criteria (usually comparing two values or subject to some user input). This forms the basis for `if-else` statements and breaking out of most loops.
+3. **Subroutines** - Keep track of where the processor is/has executed routines, begin executing new routines, and then fall back to prior routines upon completion. If you ever nest `function` calls within functions calls, your computer needs to know where to go after it finishes each function block.
 
 To accomplish all of the above, we need to store instructions as well as variables, so that we can move around our program and actually do something useful.
 
@@ -63,9 +72,9 @@ To accomplish all of the above, we need to store instructions as well as variabl
 
 CHIP-8 (and almost any processor) also has more specific, private registers. For example, how does the processor know which instruction to `fetch` next? Good question:
 
-**Program Counter (PC)** - this variable stores the address for the next instruction that the processor will evaluate. It's also known as the **instruction pointer**. Every instruction is stored in memory somewhere, and we need something that will point us to the right place.
+**Instruction Pointer (IP)** - this variable stores the address for the next instruction that the processor will evaluate. It's also known as the **program counter**. Every instruction is stored in memory somewhere, and we need something that will point us to the right place.
 
-Okay, so the **PC** will increment from one instruction to the next, but how does it keep track of where it needs to `go to` or return from a `subroutine`? Another great question!
+Okay, so the **IP** will increment from one instruction to the next, but how does it keep track of where it needs to `go to` or return from a `subroutine`? Another great question!
 
 **Stack Pointer (SP)** - one piece of memory I haven't mentioned is the stack. In CHIP-8, the stack stores a list of addresses that the processor may need to return to. A stack data structure is like a deck of cards, where the only way you can store and retrieve information is by pushing or popping cards off the top of the deck. The great thing about a stack is that we only ever have to keep track of the top of the stack - and this is exactly what the **SP** keeps track of!
 
@@ -108,7 +117,7 @@ That should install all the dependencies and start up a server that you can conn
 
 The screen flickers primarily due to how different ROMs make use of the CHIP-8 API. Instead of calculating the correct position of an object and its shape, and providing the display engine with a proper XOR-able sprite, many games will simply clear that display area, and repaint the same sprite again at a new location. This is evident in games with stationary objects that do not exhibit a flickering behavior.
 
-With this knowledge in mind, we can make an optimization to the display whereby it waits to clear a pixel until it is sure that the pixel should be cleared; that is, if any pixel should be turned off, but will be turned back on within the next frame (or s0), we should leave it on. This will smooth any animation roughness, but will add overhead to the rendering process and could also have unpredictable in-game effects.
+With this knowledge in mind, we can make an optimization to the display whereby it waits to clear a pixel until it is sure that the pixel should be cleared; that is, if any pixel should be turned off, but will be turned back on within the next frame (or so), we should leave it on. This will smooth any animation roughness, but will add overhead to the rendering process and could also have unpredictable in-game effects.
 
 #### Slow Input Response
 

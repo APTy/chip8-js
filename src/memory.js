@@ -8,19 +8,15 @@ function MemoryManager() {
   this.stack     = new Array();                                         // Stack
   this.addr_reg  = 0;                                                   // Address Register
   this.instr_ptr = 0;                                                   // Program Counter
-  this.stack_ptr = 0;                                                   // Stack Pointer
   this.delay_tmr = 0;                                                   // Delay Timer
   this.sound_tmr = 0;                                                   // Sound Timer
   this.display   = new Uint8Array(MemoryManager.DISPLAY_WIDTH_BYTES * MemoryManager.DISPLAY_HEIGHT_BYTES);  // Display Area
 }
 
 MemoryManager.MEMORY_BYTE_SIZE               = 0x1000;
-MemoryManager.RESERVED_MEMORY_BYTE_SIZE      = 0x0200;
 MemoryManager.PROGRAM_ADDRESS_START          = 0x0200;
 MemoryManager.FONT_FIRST_ADDRESS_IN_MEMORY   = 0x0000;
 MemoryManager.REGISTER_BYTE_SIZE             = 0x10;
-MemoryManager.STACK_BYTE_SIZE                = 0x10;
-MemoryManager.FONT_BYTE_SIZE                 = 0x05;
 MemoryManager.DISPLAY_WIDTH_BYTES            = 0x40;
 MemoryManager.DISPLAY_HEIGHT_BYTES           = 0x20;
 MemoryManager.OP_CODE_BYTE_LENGTH            = 0x02;
@@ -92,7 +88,7 @@ MemoryManager.prototype.draw_sprite_from_addr_reg = function(x, y, n) {
 /**
 * Read in the next instruction (2 bytes of data) and increment the instruction pointer.
 **/
-MemoryManager.prototype.read = function() {
+MemoryManager.prototype.fetch = function() {
   var instruction = (this.main[this.instr_ptr] << 8) + this.main[this.instr_ptr + 1];
   this.instr_ptr += MemoryManager.OP_CODE_BYTE_LENGTH;
   return instruction;
@@ -102,7 +98,7 @@ MemoryManager.prototype.read = function() {
 * Skip in the next instruction (2 bytes of data).
 **/
 MemoryManager.prototype.skip = function() {
-  this.read();
+  this.fetch();
 };
 
 /**

@@ -1,3 +1,25 @@
+/*
+Fonts are stored as sprites, where the order and value of bits creates the
+shape of the character.
+
+The number 0:
+  Hex         Binary            Sprite
+  F0          11110000          1111
+  90          10010000          1  1
+  90          10010000          1  1
+  90          10010000          1  1
+  F0          11110000          1111
+
+The letter F:
+  Hex         Binary            Sprite
+  F0          11110000          1111
+  80          10000000          1
+  F0          11110000          1111
+  80          10000000          1
+  80          10000000          1
+
+*/
+
 module.exports = new Uint8Array([
   0xF0,0x90,0x90,0x90,0xF0, // 0
   0x20,0x60,0x20,0x20,0x70, // 1

@@ -59,8 +59,8 @@ CPU.prototype.cycle = function() {
     // Increment the internal clock
     this.clock.tick();
 
-    // Fetch-Decode-Execute: Execute(Decode(Fetch()))
-    this.executor.execute(this.decoder.decode(this.mm.read()));
+    // Fetch-Decode-Execute
+    this.executor.execute(this.decoder.decode(this.mm.fetch()));
   }
 };
 

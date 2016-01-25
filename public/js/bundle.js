@@ -106,8 +106,8 @@ CPU.prototype.cycle = function() {
     // Increment the internal clock
     this.clock.tick();
 
-    // Fetch-Decode-Execute: Execute(Decode(Fetch()))
-    this.executor.execute(this.decoder.decode(this.mm.read()));
+    // Fetch-Decode-Execute
+    this.executor.execute(this.decoder.decode(this.mm.fetch()));
   }
 };
 
@@ -470,6 +470,28 @@ Executor.prototype.OP_F = function(inst) {
 exports.Executor = Executor;
 
 },{}],6:[function(require,module,exports){
+/*
+Fonts are stored as sprites, where the order and value of bits creates the
+shape of the character.
+
+The number 0:
+  Hex         Binary            Sprite
+  F0          11110000          1111
+  90          10010000          1  1
+  90          10010000          1  1
+  90          10010000          1  1
+  F0          11110000          1111
+
+The letter F:
+  Hex         Binary            Sprite
+  F0          11110000          1111
+  80          10000000          1
+  F0          11110000          1111
+  80          10000000          1
+  80          10000000          1
+
+*/
+
 module.exports = new Uint8Array([
   0xF0,0x90,0x90,0x90,0xF0, // 0
   0x20,0x60,0x20,0x20,0x70, // 1
@@ -648,19 +670,15 @@ function MemoryManager() {
   this.stack     = new Array();                                         // Stack
   this.addr_reg  = 0;                                                   // Address Register
   this.instr_ptr = 0;                                                   // Program Counter
-  this.stack_ptr = 0;                                                   // Stack Pointer
   this.delay_tmr = 0;                                                   // Delay Timer
   this.sound_tmr = 0;                                                   // Sound Timer
   this.display   = new Uint8Array(MemoryManager.DISPLAY_WIDTH_BYTES * MemoryManager.DISPLAY_HEIGHT_BYTES);  // Display Area
 }
 
 MemoryManager.MEMORY_BYTE_SIZE               = 0x1000;
-MemoryManager.RESERVED_MEMORY_BYTE_SIZE      = 0x0200;
 MemoryManager.PROGRAM_ADDRESS_START          = 0x0200;
 MemoryManager.FONT_FIRST_ADDRESS_IN_MEMORY   = 0x0000;
 MemoryManager.REGISTER_BYTE_SIZE             = 0x10;
-MemoryManager.STACK_BYTE_SIZE                = 0x10;
-MemoryManager.FONT_BYTE_SIZE                 = 0x05;
 MemoryManager.DISPLAY_WIDTH_BYTES            = 0x40;
 MemoryManager.DISPLAY_HEIGHT_BYTES           = 0x20;
 MemoryManager.OP_CODE_BYTE_LENGTH            = 0x02;
@@ -732,7 +750,7 @@ MemoryManager.prototype.draw_sprite_from_addr_reg = function(x, y, n) {
 /**
 * Read in the next instruction (2 bytes of data) and increment the instruction pointer.
 **/
-MemoryManager.prototype.read = function() {
+MemoryManager.prototype.fetch = function() {
   var instruction = (this.main[this.instr_ptr] << 8) + this.main[this.instr_ptr + 1];
   this.instr_ptr += MemoryManager.OP_CODE_BYTE_LENGTH;
   return instruction;
@@ -742,7 +760,7 @@ MemoryManager.prototype.read = function() {
 * Skip in the next instruction (2 bytes of data).
 **/
 MemoryManager.prototype.skip = function() {
-  this.read();
+  this.fetch();
 };
 
 /**
