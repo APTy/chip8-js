@@ -42,7 +42,6 @@ MemoryManager.prototype.initialize = function() {
 **/
 MemoryManager.prototype.load_into_memory = function(buffer) {
   this.main.set(buffer, this.addr_reg);
-  this.addr_reg += buffer.length;
 };
 
 /**
